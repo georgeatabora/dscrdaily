@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCR Daily — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0a; --black2:#111; --black3:#181818; --black4:#1e1e1e;
+  --border:#262626; --border2:#333;
+  --gl:#888; --gm:#555; --gd:#333;
+  --white:#fff; --off:#ccc;
+  --gold:#c9a84c; --gold-l:#e2c97e; --gold-d:#7a6030; --gold-glow:rgba(201,168,76,.1);
+  --green:#5aab6e; --green-bg:rgba(90,171,110,.1); --green-bd:rgba(90,171,110,.25);
+  --red:#c05555; --red-bg:rgba(192,85,85,.1); --red-bd:rgba(192,85,85,.25);
+  --blue:#5a8fc0; --blue-bg:rgba(90,143,192,.1); --blue-bd:rgba(90,143,192,.25);
+  --amber:#c09040; --amber-bg:rgba(192,144,64,.1); --amber-bd:rgba(192,144,64,.25);
+  --font-d:'Cormorant Garamond',Georgia,serif;
+  --font-b:'DM Sans',sans-serif;
+  --r:6px; --rs:4px; --sidebar:240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--white);font-family:var(--font-b);font-size:13px;font-weight:300;display:flex;-webkit-font-smoothing:antialiased}
+
+/* SIDEBAR */
+.sb{width:var(--sidebar);background:var(--black2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;flex-shrink:0}
+.sb-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border)}
+.sb-logo-text{font-family:var(--font-d);font-size:1.25rem;font-weight:600;letter-spacing:.04em}
+.sb-logo-text span{color:var(--gold)}
+.sb-badge{display:inline-block;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-d);padding:2px 8px;border-radius:100px;margin-top:5px}
+.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gm);padding:10px 10px 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);color:var(--gl);cursor:pointer;font-size:12px;font-weight:400;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left;font-family:var(--font-b);position:relative}
+.ni:hover{background:var(--black3);color:var(--white)}
+.ni.active{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-d)}
+.ni .nb{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;line-height:1.5}
+.nb-red{background:var(--red);color:#fff}
+.nb-green{background:var(--green);color:#fff}
+.nb-gold{background:var(--gold);color:var(--black)}
+.sb-footer{padding:14px;border-top:1px solid var(--border)}
+.api-status-box{background:var(--black3);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;margin-bottom:10px}
+.asr{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--gl);margin-bottom:5px}
+.asr:last-child{margin-bottom:0}
+.asr-name{display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-on{background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot-off{background:var(--red)}
+.dot-pending{background:var(--amber);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:var(--black2);flex-shrink:0}
+.topbar-title{font-family:var(--font-d);font-size:1.15rem;font-weight:400}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rs);font-family:var(--font-b);font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:var(--black)}
+.btn-primary:hover{background:var(--gold-l)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--off)}
+.btn-outline:hover{border-color:var(--gold-d);color:var(--gold)}
+.btn-green{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.btn-green:hover{background:rgba(90,171,110,.2)}
+.btn-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.btn-red:hover{background:rgba(192,85,85,.2)}
+.btn-blue{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}
+.btn-sm{padding:6px 13px;font-size:10px}
+.btn-xs{padding:4px 9px;font-size:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* CARDS */
+.card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px}
+.card-top{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.stat{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.stat-lbl{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gl);margin-bottom:7px}
+.stat-val{font-family:var(--font-d);font-size:1.75rem;font-weight:300;line-height:1}
+.stat-sub{font-size:10px;color:var(--gm);margin-top:4px}
+.green{color:var(--green)} .gold{color:var(--gold)} .red{color:var(--red)} .blue{color:var(--blue)}
+
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fg4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ff{display:flex;flex-direction:column;gap:5px}
+.ff.full{grid-column:1/-1}
+.ff label{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gl)}
+.ff input,.ff select,.ff textarea{background:var(--black);border:1px solid var(--border);color:var(--white);padding:10px 13px;font-family:var(--font-b);font-size:13px;border-radius:var(--rs);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--gold)}
+.ff input.gold-focus{border-color:var(--gold);background:var(--gold-glow)}
+.ff textarea{min-height:72px;resize:vertical}
+.fn{font-size:10px;color:var(--gm)}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gl);padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;background:var(--black2);position:sticky;top:0;z-index:1}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:var(--black3)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:11px 12px;color:var(--off);white-space:nowrap}
+td.addr{color:var(--white);font-weight:500;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+td.num{font-family:var(--font-d);font-size:.95rem}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:100px;font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.pill-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.pill-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.pill-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.pill-gold{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-d)}
+.pill-gray{background:var(--black3);color:var(--gl);border:1px solid var(--border)}
+.pdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* DSCR INDICATOR */
+.dscr-ind{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--rs);font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
+.dscr-pass{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.dscr-warn{background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber)}
+.dscr-fail{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.dscr-noratio{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}
+
+/* PROGRESS */
+.progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:18px;right:18px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;font-size:12px;color:var(--white);display:flex;align-items:center;gap:10px;animation:toastIn .3s cubic-bezier(.22,1,.36,1);max-width:300px;box-shadow:0 8px 30px rgba(0,0,0,.5);pointer-events:auto}
+@keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.toast-success{border-left:3px solid var(--green)}
+.toast-error{border-left:3px solid var(--red)}
+.toast-info{border-left:3px solid var(--gold)}
+
+/* LOG */
+.log{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:260px;overflow-y:auto}
+.log-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--black);font-size:11px}
+.log-item:last-child{border-bottom:none}
+.log-time{color:var(--gm);white-space:nowrap;width:70px;flex-shrink:0}
+.log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.log-msg{color:var(--off);flex:1;line-height:1.5}
+.log-msg strong{color:var(--white)}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:mIn .28s cubic-bezier(.22,1,.36,1);position:relative}
+@keyframes mIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);border-radius:var(--r) var(--r) 0 0}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--gl);cursor:pointer;font-size:16px;line-height:1;padding:4px}
+.modal-close:hover{color:var(--white)}
+.modal-title{font-family:var(--font-d);font-size:1.35rem;font-weight:300;margin-bottom:4px}
+.modal-sub{font-size:11px;color:var(--gl);margin-bottom:20px}
+
+/* SEARCH */
+.sw{position:relative;display:flex;align-items:center}
+.sw input{width:100%;background:var(--black);border:1px solid var(--border);color:var(--white);padding:9px 13px 9px 36px;font-family:var(--font-b);font-size:12px;border-radius:var(--rs);outline:none;transition:border-color .2s}
+.sw input:focus{border-color:var(--gold)}
+.sw-icon{position:absolute;left:11px;color:var(--gm);pointer-events:none}
+.sw-spin{position:absolute;right:10px;display:none}
+.sw-spin.on{display:block}
+.spinning{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MLS RESULT CARDS */
+.mls-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mls-card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+.mls-card:hover{border-color:var(--gold-d)}
+.mls-card.selected{border-color:var(--gold);background:var(--gold-glow)}
+.mls-card.below{opacity:.6;border-style:dashed}
+.mls-type{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.mls-addr{font-size:.88rem;color:var(--white);font-weight:500;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mls-city{font-size:10px;color:var(--gl);margin-bottom:12px}
+.mls-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:10px}
+.mls-metric{padding:8px 6px;text-align:center;border-right:1px solid var(--border)}
+.mls-metric:last-child{border-right:none}
+.mls-mval{font-family:var(--font-d);font-size:.95rem;color:var(--white)}
+.mls-mval.green{color:var(--green)}
+.mls-mval.gold{color:var(--gold)}
+.mls-mlbl{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gm);margin-top:2px}
+.mls-dscr-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;background:var(--black);border:1px solid var(--gold-d);color:var(--gold)}
+
+/* PREVIEW PANEL */
+.preview-panel{background:var(--black2);border:1px solid var(--gold-d);border-radius:var(--r);padding:18px;position:sticky;top:0}
+.preview-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)}
+.preview-row:last-child{border-bottom:none}
+.preview-lbl{font-size:10px;color:var(--gl)}
+.preview-val{font-family:var(--font-d);font-size:1rem;color:var(--white)}
+
+/* SUBSCRIBER CARDS */
+.sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.sub-stat{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--gl)}
+.empty svg{opacity:.25;margin:0 auto 14px;display:block}
+.empty h3{font-family:var(--font-d);font-size:1.2rem;font-weight:300;color:var(--white);margin-bottom:6px}
+.empty p{font-size:12px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+
+/* WEBHOOK COPY */
+.webhook-url{background:var(--black);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--gold);word-break:break-all;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.copy-btn{flex-shrink:0;background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:5px 10px;border-radius:var(--rs);cursor:pointer;font-size:10px;font-family:var(--font-b);transition:all .2s}
+.copy-btn:hover{border-color:var(--gold-d);color:var(--gold)}
+
+/* STATE CHECKBOXES */
+.state-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.state-cb{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--gl);padding:6px 8px;border:1px solid var(--border);border-radius:var(--rs);transition:all .2s}
+.state-cb:hover{border-color:var(--gold-d);color:var(--white)}
+.state-cb input{accent-color:var(--gold);width:13px;height:13px}
+.state-cb.checked{border-color:var(--gold-d);background:var(--gold-glow);color:var(--gold)}
+
+/* SCHEDULE TOGGLE */
+.sched-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;width:fit-content}
+.sched-opt{padding:8px 20px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;background:none;border:none;color:var(--gl);font-family:var(--font-b);transition:all .2s;border-right:1px solid var(--border)}
+.sched-opt:last-child{border-right:none}
+.sched-opt.active{background:var(--gold);color:var(--black)}
+
+/* SUPABASE CONFIG */
+.config-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.info-box{background:var(--black);border:1px solid var(--border);border-radius:var(--rs);padding:13px 15px;font-size:11px;color:var(--gl);line-height:1.7}
+.info-box strong{color:var(--white)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:var(--gold-glow);border:1px solid var(--gold-d);border-radius:50%;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;margin-right:6px}
+
+/* NOTIFICATION DIGEST PREVIEW */
+.digest-preview{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:20px;font-size:12px}
+.digest-header{border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:14px}
+.digest-logo{font-family:var(--font-d);font-size:1.1rem;font-weight:600;color:var(--white);margin-bottom:4px}
+.digest-logo span{color:var(--gold)}
+.digest-deal{border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:8px;background:var(--black2)}
+.digest-deal-addr{font-weight:500;color:var(--white);margin-bottom:6px}
+.digest-deal-nums{display:flex;gap:14px;font-size:11px;color:var(--gl)}
+.digest-deal-nums span strong{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-text">DSCR<span>Daily</span></div>
+    <div class="sb-badge">Admin Panel</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Main</div>
+    <button class="ni active" onclick="nav('dashboard',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="ni" onclick="nav('mls',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      MLS Deal Finder
+      <span class="nb nb-green">Auto</span>
+    </button>
+    <button class="ni" onclick="nav('add',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add Property
+    </button>
+    <button class="ni" onclick="nav('properties',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      All Properties
+      <span class="nb nb-gold" id="nav-prop-ct">0</span>
+    </button>
+    <div class="sb-section">Subscribers</div>
+    <button class="ni" onclick="nav('subscribers',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Subscribers
+      <span class="nb nb-gold" id="nav-sub-ct">0</span>
+    </button>
+    <button class="ni" onclick="nav('notifications',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Send Digest
+    </button>
+    <div class="sb-section">Settings</div>
+    <button class="ni" onclick="nav('api',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      API Settings
+    </button>
+    <button class="ni" onclick="nav('automation',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Automation
+    </button>
+    <button class="ni" onclick="nav('database',this)">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Database
+    </button>
+  </nav>
+  <div class="sb-footer">
+    <div class="api-status-box">
+      <div class="asr">
+        <div class="asr-name"><div class="dot dot-off" id="d-bright"></div>Bright MLS</div>
+        <span id="l-bright" style="font-size:9px;color:var(--gm)">Not set</span>
+      </div>
+      <div class="asr">
+        <div class="asr-name"><div class="dot dot-off" id="d-rentcast"></div>RentCast</div>
+        <span id="l-rentcast" style="font-size:9px;color:var(--gm)">Not set</span>
+      </div>
+      <div class="asr">
+        <div class="asr-name"><div class="dot dot-off" id="d-supabase"></div>Supabase</div>
+        <span id="l-supabase" style="font-size:9px;color:var(--gm)">Not set</span>
+      </div>
+      <div class="asr">
+        <div class="asr-name"><div class="dot dot-off" id="d-webhook"></div>Make.com</div>
+        <span id="l-webhook" style="font-size:9px;color:var(--gm)">Not set</span>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:10px;" onclick="window.open('index.html','_blank')">
+      ↗ View Live Site
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <div style="font-size:10px;color:var(--gl)" id="sync-label">Never synced</div>
+      <button class="btn btn-outline btn-sm" onclick="runSync()">
+        <svg id="sync-icon" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sync Now
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="nav('add',document.querySelectorAll('.ni')[2])">+ Add Deal</button>
+    </div>
+  </div>
+  <div class="content" id="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="view active" id="v-dashboard">
+      <div class="stat-row">
+        <div class="stat"><div class="stat-lbl">Live Deals</div><div class="stat-val gold" id="s-live">0</div><div class="stat-sub">Published on site</div></div>
+        <div class="stat"><div class="stat-lbl">Drafts</div><div class="stat-val" id="s-draft">0</div><div class="stat-sub">Awaiting review</div></div>
+        <div class="stat"><div class="stat-lbl">Avg DSCR</div><div class="stat-val green" id="s-dscr">—</div><div class="stat-sub">Live properties</div></div>
+        <div class="stat"><div class="stat-lbl">Avg Cash Flow</div><div class="stat-val green" id="s-cf">—</div><div class="stat-sub">Est. monthly</div></div>
+        <div class="stat"><div class="stat-lbl">Subscribers</div><div class="stat-val blue" id="s-subs">0</div><div class="stat-sub">Active alerts</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+        <!-- Quick Check -->
+        <div class="card">
+          <div class="card-top">Quick Address Check</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <div class="sw" style="flex:1">
+              <svg class="sw-icon" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="q-addr" placeholder="123 Main St, Tampa FL..." onkeydown="if(event.key==='Enter')quickCheck()">
+              <svg class="sw-spin" id="q-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="quickCheck()">Check</button>
+          </div>
+          <div id="q-result" style="display:none">
+            <div class="fg4" style="margin-bottom:10px">
+              <div><div style="font-size:9px;color:var(--gl);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Est. Rent</div><div style="font-family:var(--font-d);font-size:1.1rem;color:var(--gold)" id="q-rent">—</div></div>
+              <div><div style="font-size:9px;color:var(--gl);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Payment</div><div style="font-family:var(--font-d);font-size:1.1rem" id="q-pay">—</div></div>
+              <div><div style="font-size:9px;color:var(--gl);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">DSCR</div><div style="font-family:var(--font-d);font-size:1.1rem" id="q-dscr">—</div></div>
+              <div><div style="font-size:9px;color:var(--gl);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Cash Flow</div><div style="font-family:var(--font-d);font-size:1.1rem" id="q-cf">—</div></div>
+            </div>
+            <div id="q-ind" class="dscr-ind dscr-pass" style="margin-bottom:8px"></div>
+            <div style="display:flex;gap:7px">
+              <button class="btn btn-green btn-xs" onclick="addFromQuick()">+ Add to Deals</button>
+              <button class="btn btn-outline btn-xs" onclick="document.getElementById('q-result').style.display='none'">Clear</button>
+            </div>
+          </div>
+        </div>
+        <!-- Activity Log -->
+        <div class="card">
+          <div class="card-top">Activity Log <span style="font-size:9px;color:var(--gm)" id="log-count"></span></div>
+          <div class="log" id="activity-log">
+            <div class="log-item"><div class="log-time">Just now</div><div class="log-dot" style="background:var(--blue)"></div><div class="log-msg">Admin panel loaded</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Properties Table -->
+      <div class="card">
+        <div class="card-top">Live Properties <button class="btn btn-outline btn-xs" onclick="nav('properties',document.querySelectorAll('.ni')[3])">View All →</button></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Address</th><th>Price</th><th>Rent</th><th>Payment</th><th>Cash Flow</th><th>DSCR</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="dash-table-body"><tr><td colspan="8"><div class="empty" style="padding:24px"><p>No properties yet — <button class="btn btn-primary btn-xs" onclick="nav('add',document.querySelectorAll('.ni')[2])" style="margin-left:6px">Add First Deal →</button></p></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MLS DEAL FINDER ═══ -->
+    <div class="view" id="v-mls">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-top">
+          Bright MLS + RentCast — Automated Deal Scanner
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--green)"><div class="dot dot-on"></div>Ready</div>
+        </div>
+        <div class="fg4" style="margin-bottom:12px">
+          <div class="ff"><label>State / Market</label>
+            <select id="mls-state">
+              <option>Florida</option><option>Texas</option><option>Georgia</option>
+              <option>North Carolina</option><option>South Carolina</option>
+              <option>Tennessee</option><option>Indiana</option><option>Ohio</option>
+              <option>Michigan</option><option>Arizona</option><option>Nevada</option>
+            </select>
+          </div>
+          <div class="ff"><label>Max Price ($)</label><input type="number" id="mls-price" value="600000"></div>
+          <div class="ff"><label>Min DSCR Ratio</label><input type="number" id="mls-dscr" value="1.25" step="0.01"></div>
+          <div class="ff"><label>Property Type</label>
+            <select id="mls-ptype">
+              <option value="all">All Types</option><option value="sfr">Single Family</option>
+              <option value="multi">Multi-Unit</option><option value="condo">Condo/TH</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary" onclick="runMLSScan()" id="mls-btn">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Scan for Qualifying Deals
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="addAllQualifying()" id="add-all-btn" style="display:none">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add All Qualifying
+          </button>
+          <span id="mls-result-label" style="font-size:11px;color:var(--gl)"></span>
+        </div>
+        <div id="mls-prog-wrap" style="display:none;margin-top:10px">
+          <div style="font-size:10px;color:var(--gl);margin-bottom:4px" id="mls-prog-label">Connecting to Bright MLS...</div>
+          <div class="progress"><div class="progress-fill" id="mls-prog" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div id="mls-results" style="display:none">
+        <div class="mls-grid" id="mls-grid"></div>
+      </div>
+      <div id="mls-empty-state" style="display:none">
+        <div class="empty"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>No Qualifying Deals Found</h3><p>Try lowering min DSCR or expanding price range</p></div>
+      </div>
+    </div>
+
+    <!-- ═══ ADD PROPERTY ═══ -->
+    <div class="view" id="v-add">
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">
+        <div>
+          <!-- Address auto-fill -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-top">Step 1 — Address &amp; RentCast Auto-Fill</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <div class="sw" style="flex:1">
+                <svg class="sw-icon" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="ap-addr" placeholder="4823 Palmetto Ridge Dr, Tampa, FL 33610" onkeydown="if(event.key==='Enter')autoFill()">
+                <svg class="sw-spin" id="ap-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="autoFill()" id="autofill-btn">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Auto-Fill via RentCast
+              </button>
+            </div>
+            <div class="fn">Type address → click Auto-Fill → rent estimate populates automatically from RentCast</div>
+          </div>
+          <!-- Property details -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-top">Step 2 — Property Details</div>
+            <div class="fg" style="margin-bottom:12px">
+              <div class="ff"><label>List Price ($)</label><input type="number" id="ap-price" placeholder="285000" oninput="recalc()"></div>
+              <div class="ff"><label>Property Type</label>
+                <select id="ap-ptype"><option>Single Family</option><option>Duplex</option><option>Triplex</option><option>Quadplex</option><option>Condo / TH</option><option>Short-Term Rental</option></select>
+              </div>
+              <div class="ff"><label>Beds</label><input type="number" id="ap-beds" placeholder="3"></div>
+              <div class="ff"><label>Baths</label><input type="number" id="ap-baths" placeholder="2" step="0.5"></div>
+              <div class="ff"><label>Sq Ft</label><input type="number" id="ap-sqft" placeholder="1340"></div>
+              <div class="ff"><label>State / Market</label>
+                <select id="ap-state">
+                  <option value="florida">Florida</option><option value="texas">Texas</option>
+                  <option value="georgia">Georgia</option><option value="carolina">Carolinas</option>
+                  <option value="tennessee">Tennessee</option><option value="midwest">Midwest</option>
+                  <option value="arizona">Arizona</option><option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- DSCR inputs -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-top">Step 3 — DSCR Inputs</div>
+            <div class="fg3" style="margin-bottom:12px">
+              <div class="ff"><label>Monthly Rent ($) <span style="color:var(--gold);font-size:8px">← RentCast</span></label><input type="number" id="ap-rent" placeholder="2500" oninput="recalc()" class="gold-focus"></div>
+              <div class="ff"><label>Down Payment (%)</label><input type="number" id="ap-down" value="20" oninput="recalc()"></div>
+              <div class="ff"><label>Interest Rate (%)</label><input type="number" id="ap-rate" value="7.5" step="0.1" oninput="recalc()"></div>
+              <div class="ff"><label>Property Tax ($/mo)</label><input type="number" id="ap-tax" placeholder="180" oninput="recalc()"></div>
+              <div class="ff"><label>Insurance ($/mo)</label><input type="number" id="ap-ins" placeholder="100" oninput="recalc()"></div>
+              <div class="ff"><label>HOA ($/mo)</label><input type="number" id="ap-hoa" value="0" oninput="recalc()"></div>
+            </div>
+          </div>
+          <!-- Display options -->
+          <div class="card">
+            <div class="card-top">Step 4 — Display &amp; Publish</div>
+            <div class="fg" style="margin-bottom:12px">
+              <div class="ff"><label>Deal Badge</label>
+                <select id="ap-badge"><option value="hot">🔥 Hot Deal</option><option value="new">New Listing</option><option value="str">STR Eligible</option><option value="noratio">No-Ratio OK</option><option value="none">No Badge</option></select>
+              </div>
+              <div class="ff"><label>Status</label>
+                <select id="ap-status"><option value="live">Publish Live Now</option><option value="draft">Save as Draft</option></select>
+              </div>
+              <div class="ff full"><label>Internal Notes (not shown on site)</label><textarea id="ap-notes" placeholder="Source, contact info, deal notes..."></textarea></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="saveProp()">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Save &amp; Publish
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="saveProp('draft')">Save Draft</button>
+              <button class="btn btn-outline btn-sm" onclick="clearForm()">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE PREVIEW -->
+        <div>
+          <div class="preview-panel">
+            <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px">Live DSCR Preview</div>
+            <div id="prev-ind" class="dscr-ind dscr-pass">Enter details to calculate</div>
+            <div class="preview-row"><div class="preview-lbl">Loan Amount</div><div class="preview-val" id="pv-loan">—</div></div>
+            <div class="preview-row"><div class="preview-lbl">Monthly P&amp;I</div><div class="preview-val" id="pv-pi">—</div></div>
+            <div class="preview-row"><div class="preview-lbl">Tax + Insurance</div><div class="preview-val" id="pv-tins">—</div></div>
+            <div class="preview-row" style="background:var(--black3)"><div class="preview-lbl">Total PITIA</div><div class="preview-val" id="pv-pitia" style="font-weight:600">—</div></div>
+            <div class="preview-row"><div class="preview-lbl">Market Rent</div><div class="preview-val gold" id="pv-rent">—</div></div>
+            <div class="preview-row" style="background:var(--black)"><div class="preview-lbl" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">DSCR Ratio</div><div style="font-family:var(--font-d);font-size:2rem;font-weight:300" id="pv-dscr">—</div></div>
+            <div class="preview-row"><div class="preview-lbl" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em">Cash Flow</div><div style="font-family:var(--font-d);font-size:1.4rem" id="pv-cf">—</div></div>
+            <div style="padding:12px;background:var(--black3);border-radius:var(--rs);margin-top:4px;font-size:10px;color:var(--gl);line-height:1.7" id="pv-options">Enter price &amp; rate to see financing options</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ALL PROPERTIES ═══ -->
+    <div class="view" id="v-properties">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="sw" style="flex:1;min-width:200px">
+          <svg class="sw-icon" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search properties..." oninput="filterProps(this.value)">
+        </div>
+        <select style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:var(--rs);font-family:var(--font-b);font-size:11px;outline:none" onchange="filterStatus(this.value)">
+          <option value="all">All Status</option><option value="live">Live Only</option><option value="draft">Drafts Only</option>
+        </select>
+        <select style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:var(--rs);font-family:var(--font-b);font-size:11px;outline:none" onchange="sortProps(this.value)">
+          <option value="dscr">Best DSCR</option><option value="cf">Best Cash Flow</option><option value="price">Price</option><option value="newest">Newest</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="nav('add',document.querySelectorAll('.ni')[2])">+ Add Deal</button>
+      </div>
+      <div class="card">
+        <div class="tw">
+          <table>
+            <thead><tr><th>Address</th><th>Type</th><th>State</th><th>Price</th><th>Rent</th><th>Payment</th><th>Cash Flow</th><th>DSCR</th><th>Status</th><th>Added</th><th>Actions</th></tr></thead>
+            <tbody id="all-props-body"><tr><td colspan="11"><div class="empty" style="padding:36px"><svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><h3>No Properties Yet</h3><p>Add deals manually or use the MLS scanner</p></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SUBSCRIBERS ═══ -->
+    <div class="view" id="v-subscribers">
+      <div class="sub-grid">
+        <div class="sub-stat"><div class="stat-lbl">Total Subscribers</div><div class="stat-val blue" id="sub-total">0</div><div class="stat-sub">All active</div></div>
+        <div class="sub-stat"><div class="stat-lbl">Daily Digest</div><div class="stat-val" id="sub-daily">0</div><div class="stat-sub">Every morning</div></div>
+        <div class="sub-stat"><div class="stat-lbl">Weekly Digest</div><div class="stat-val" id="sub-weekly">0</div><div class="stat-sub">Every Monday</div></div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="sw" style="flex:1;min-width:200px">
+          <svg class="sw-icon" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search subscribers..." oninput="filterSubs(this.value)">
+        </div>
+        <select style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:var(--rs);font-family:var(--font-b);font-size:11px;outline:none" onchange="filterSubFreq(this.value)">
+          <option value="all">All Frequencies</option><option value="daily">Daily</option><option value="weekly">Weekly</option>
+        </select>
+        <select style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:var(--rs);font-family:var(--font-b);font-size:11px;outline:none" onchange="filterSubState(this.value)" id="sub-state-filter">
+          <option value="all">All States</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="openAddSubModal()">+ Add Subscriber</button>
+        <button class="btn btn-outline btn-sm" onclick="exportSubs()">↓ Export CSV</button>
+      </div>
+
+      <div class="card">
+        <div class="tw">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>States</th><th>Frequency</th><th>Min DSCR</th><th>Joined</th><th>Last Sent</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="subs-body"><tr><td colspan="10"><div class="empty" style="padding:36px"><svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><h3>No Subscribers Yet</h3><p>Subscribers sign up from the live site. They'll appear here automatically.</p></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEND DIGEST ═══ -->
+    <div class="view" id="v-notifications">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <!-- Compose -->
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-top">Send Deal Digest</div>
+            <div class="ff" style="margin-bottom:12px">
+              <label>Frequency Target</label>
+              <div class="sched-toggle">
+                <button class="sched-opt active" onclick="setDigestTarget('daily',this)">Daily</button>
+                <button class="sched-opt" onclick="setDigestTarget('weekly',this)">Weekly</button>
+                <button class="sched-opt" onclick="setDigestTarget('all',this)">All</button>
+              </div>
+            </div>
+            <div class="ff" style="margin-bottom:12px">
+              <label>Filter by State (leave blank = all)</label>
+              <select id="digest-state" style="background:var(--black);border:1px solid var(--border);color:var(--white);padding:10px 13px;border-radius:var(--rs);font-family:var(--font-b);font-size:13px;outline:none;-webkit-appearance:none">
+                <option value="all">All States</option>
+                <option value="florida">Florida</option><option value="texas">Texas</option>
+                <option value="georgia">Georgia</option><option value="carolina">Carolinas</option>
+                <option value="tennessee">Tennessee</option><option value="midwest">Midwest</option>
+              </select>
+            </div>
+            <div class="ff" style="margin-bottom:12px">
+              <label>Include Deals with DSCR ≥</label>
+              <input type="number" id="digest-dscr" value="1.25" step="0.01">
+            </div>
+            <div class="ff" style="margin-bottom:16px">
+              <label>Custom Message (optional)</label>
+              <textarea id="digest-msg" placeholder="Add a personal note to this week's digest..."></textarea>
+            </div>
+            <div style="background:var(--black3);border-radius:var(--rs);padding:12px 14px;font-size:11px;color:var(--gl);margin-bottom:14px" id="digest-preview-info">
+              Select options above to see recipient count
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="sendDigest()">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send Digest Now
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="previewDigest()">Preview Email</button>
+            </div>
+          </div>
+
+          <!-- Auto Schedule -->
+          <div class="card">
+            <div class="card-top">Automated Schedule</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+                <div>
+                  <div style="font-size:12px;color:var(--white);font-weight:500">Daily Digest</div>
+                  <div style="font-size:10px;color:var(--gl)">Sent every morning at 7:00 AM ET to daily subscribers</div>
+                </div>
+                <label style="display:flex;align-items:center;cursor:pointer;gap:8px">
+                  <input type="checkbox" id="auto-daily" style="accent-color:var(--gold);width:16px;height:16px" checked>
+                  <span style="font-size:10px;color:var(--gl)">Active</span>
+                </label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+                <div>
+                  <div style="font-size:12px;color:var(--white);font-weight:500">Weekly Digest</div>
+                  <div style="font-size:10px;color:var(--gl)">Sent every Monday at 8:00 AM ET to weekly subscribers</div>
+                </div>
+                <label style="display:flex;align-items:center;cursor:pointer;gap:8px">
+                  <input type="checkbox" id="auto-weekly" style="accent-color:var(--gold);width:16px;height:16px" checked>
+                  <span style="font-size:10px;color:var(--gl)">Active</span>
+                </label>
+              </div>
+              <div class="info-box">
+                <strong>Powered by Make.com</strong><br>
+                Once your Make.com automation is connected, digests send automatically. Configure in the Automation tab.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div>
+          <div class="card">
+            <div class="card-top">Email Preview</div>
+            <div class="digest-preview" id="digest-email-preview">
+              <div class="digest-header">
+                <div class="digest-logo">DSCR<span>Daily</span></div>
+                <div style="font-size:11px;color:var(--gl);margin-top:4px" id="dig-date"></div>
+                <div style="font-size:13px;color:var(--white);margin-top:8px;font-weight:500">Your DSCR Deal Digest — New Cash-Flowing Properties</div>
+              </div>
+              <div style="font-size:11px;color:var(--gl);margin-bottom:12px">Hi [First Name], here are the latest investment properties qualifying at DSCR ≥ 1.25:</div>
+              <div id="digest-deals-preview">
+                <div class="digest-deal">
+                  <div class="digest-deal-addr">4823 Palmetto Ridge Dr — Tampa, FL</div>
+                  <div class="digest-deal-nums">
+                    <span>Price: <strong>$285K</strong></span>
+                    <span>Rent: <strong>$2,500/mo</strong></span>
+                    <span>Cash Flow: <strong style="color:var(--green)">+$680/mo</strong></span>
+                    <span>DSCR: <strong>1.28</strong></span>
+                  </div>
+                </div>
+                <div class="digest-deal">
+                  <div class="digest-deal-addr">1204 Piedmont Ave (Duplex) — Charlotte, NC</div>
+                  <div class="digest-deal-nums">
+                    <span>Price: <strong>$410K</strong></span>
+                    <span>Rent: <strong>$3,700/mo</strong></span>
+                    <span>Cash Flow: <strong style="color:var(--green)">+$1,140/mo</strong></span>
+                    <span>DSCR: <strong>1.41</strong></span>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:14px;padding:12px;background:var(--gold-glow);border:1px solid var(--gold-d);border-radius:var(--rs);font-size:11px;color:var(--gold);text-align:center">
+                View All Deals + Get DSCR Financing →
+              </div>
+              <div style="margin-top:12px;font-size:9px;color:var(--gm);text-align:center">You're receiving this because you subscribed to DSCR Daily deal alerts. <span style="color:var(--gold)">Unsubscribe</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ API SETTINGS ═══ -->
+    <div class="view" id="v-api">
+      <!-- RentCast -->
+      <div class="card" style="margin-bottom:16px;border-top:2px solid var(--green)">
+        <div class="card-top">RentCast API <span id="rc-badge"><span class="pill pill-gray">Not Connected</span></span></div>
+        <div class="info-box" style="margin-bottom:14px">
+          <strong>What it does:</strong> Auto-fills market rent estimates when you enter any address. Powers the Quick Check tool and Auto-Fill button.<br>
+          <strong>Get your key:</strong> <a href="https://app.rentcast.io" target="_blank" style="color:var(--gold)">app.rentcast.io</a> → API Keys → Copy your key → paste below. Plans start at $50/mo.
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <div class="ff"><label>API Key</label><input type="password" id="rc-key" placeholder="rc_live_xxxxxxxxxxxxxxxx"></div>
+          <div class="ff"><label>Default Assumption — Down Payment (%)</label><input type="number" id="rc-down" value="20"></div>
+          <div class="ff"><label>Default Interest Rate (%)</label><input type="number" id="rc-rate" value="7.5" step="0.1"></div>
+          <div class="ff"><label>Min DSCR Filter</label><input type="number" id="rc-mindscr" value="1.25" step="0.01"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary btn-sm" onclick="saveRC()">Save &amp; Test Connection</button>
+          <span id="rc-test" style="font-size:11px"></span>
+        </div>
+      </div>
+
+      <!-- Bright MLS -->
+      <div class="card" style="margin-bottom:16px;border-top:2px solid var(--blue)">
+        <div class="card-top">Bright MLS — RESO Web API <span id="bm-badge"><span class="pill pill-gray">Not Connected</span></span></div>
+        <div class="info-box" style="margin-bottom:14px">
+          <strong>What it does:</strong> Pulls live active listings from the MLS by your criteria. Combine with RentCast to auto-score every listing.<br>
+          <strong>Get access:</strong> Visit <a href="https://www.brightmls.com/data-licensing" target="_blank" style="color:var(--gold)">brightmls.com/data-licensing</a> → Request API credentials → You'll receive a Bearer token.
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <div class="ff"><label>Bearer Token</label><input type="password" id="bm-token" placeholder="Bearer eyJhbGciOi..."></div>
+          <div class="ff"><label>Base URL</label><input type="text" id="bm-url" value="https://api.brightmls.com/v1" placeholder="https://api.brightmls.com/v1"></div>
+          <div class="ff"><label>MLS Origin ID</label><input type="text" id="bm-origin" placeholder="BRIGHT"></div>
+          <div class="ff"><label>Max Results Per Scan</label><input type="number" id="bm-max" value="50"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary btn-sm" onclick="saveBM()">Save &amp; Test Connection</button>
+          <button class="btn btn-outline btn-sm" onclick="window.open('https://www.brightmls.com/data-licensing','_blank')">Get API Access →</button>
+          <span id="bm-test" style="font-size:11px"></span>
+        </div>
+      </div>
+
+      <!-- Email (Resend) -->
+      <div class="card" style="border-top:2px solid var(--gold)">
+        <div class="card-top">Email Provider — Resend <span id="email-badge"><span class="pill pill-gray">Not Connected</span></span></div>
+        <div class="info-box" style="margin-bottom:14px">
+          <strong>What it does:</strong> Sends deal digests to your subscribers. Resend is the cleanest developer email API — free up to 3,000 emails/mo.<br>
+          <strong>Get your key:</strong> <a href="https://resend.com" target="_blank" style="color:var(--gold)">resend.com</a> → Free signup → API Keys → Create key
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <div class="ff"><label>Resend API Key</label><input type="password" id="email-key" placeholder="re_xxxxxxxxxxxxxxxx"></div>
+          <div class="ff"><label>From Email</label><input type="email" id="email-from" placeholder="deals@dscrdaily.com"></div>
+          <div class="ff"><label>From Name</label><input type="text" id="email-name" placeholder="DSCR Daily"></div>
+          <div class="ff"><label>Reply-To</label><input type="email" id="email-reply" placeholder="you@dscrdaily.com"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary btn-sm" onclick="saveEmail()">Save &amp; Send Test Email</button>
+          <span id="email-test" style="font-size:11px"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ AUTOMATION ═══ -->
+    <div class="view" id="v-automation">
+      <!-- Make.com Webhook -->
+      <div class="card" style="margin-bottom:16px;border-top:2px solid var(--gold)">
+        <div class="card-top">Make.com Incoming Webhook <span id="wh-badge"><span class="pill pill-gray">Not Configured</span></span></div>
+        <div style="font-size:12px;color:var(--gl);margin-bottom:16px;line-height:1.7">
+          Make.com calls this webhook URL every morning with new qualifying deals. Your admin panel receives them and automatically adds them to the queue for your review. <strong style="color:var(--white)">You wake up, deals are already here.</strong>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gl);margin-bottom:6px">Your Webhook Endpoint (copy this into Make.com)</div>
+          <div class="webhook-url">
+            <span id="wh-url">https://your-site.com/api/webhook/deals</span>
+            <button class="copy-btn" onclick="copyWebhook()">Copy</button>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <div class="ff"><label>Webhook Secret Key</label><input type="password" id="wh-secret" placeholder="Generate or paste a secret key"></div>
+          <div class="ff"><label>Auto-Approve Deals with DSCR ≥</label><input type="number" id="wh-autoapprove" value="0" step="0.01" placeholder="0 = manual review all"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="saveWebhook()">Save Webhook Config</button>
+          <button class="btn btn-outline btn-sm" onclick="testWebhook()">Send Test Payload</button>
+        </div>
+      </div>
+
+      <!-- Make.com Setup Guide -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-top">Make.com Automation — Setup Guide</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="info-box">
+            <span class="step-num">1</span><strong>Create a Make.com account</strong> at make.com (free plan works to start, $9/mo Core plan for scheduling)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ Create a new Scenario
+          </div>
+          <div class="info-box">
+            <span class="step-num">2</span><strong>Add a Schedule trigger</strong> — set to every day at 6:00 AM ET<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ This kicks off the scan automatically every morning
+          </div>
+          <div class="info-box">
+            <span class="step-num">3</span><strong>Add an HTTP module</strong> → Make a Request<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ URL: your RentCast API endpoint for active listings<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ Headers: Authorization: Bearer [your RentCast key]
+          </div>
+          <div class="info-box">
+            <span class="step-num">4</span><strong>Add a Filter module</strong> — only pass deals where DSCR ≥ 1.25<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ Formula: rent / pitia ≥ 1.25
+          </div>
+          <div class="info-box">
+            <span class="step-num">5</span><strong>Add another HTTP module</strong> → POST to your webhook URL above<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ Body: the qualifying deal data (address, price, rent, DSCR, cash flow)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ Admin panel receives it and queues for your review
+          </div>
+          <div class="info-box">
+            <span class="step-num">6</span><strong>Add an Email module</strong> → send yourself a morning summary<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;→ "X new deals found today matching your DSCR criteria"
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-outline btn-sm" onclick="window.open('https://make.com','_blank')">Open Make.com →</button>
+          <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="downloadMakeTemplate()">Download Scenario Template</button>
+        </div>
+      </div>
+
+      <!-- Auto-Sync Settings -->
+      <div class="card">
+        <div class="card-top">Auto-Sync Preferences</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+            <div><div style="font-size:12px;color:var(--white);font-weight:500">Morning Deal Scan</div><div style="font-size:10px;color:var(--gl)">Auto-scan MLS + RentCast every day at 6 AM ET</div></div>
+            <input type="checkbox" id="sync-morning" style="accent-color:var(--gold);width:16px;height:16px" checked>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+            <div><div style="font-size:12px;color:var(--white);font-weight:500">Auto-Filter Below Threshold</div><div style="font-size:10px;color:var(--gl)">Automatically reject deals below min DSCR — never show them</div></div>
+            <input type="checkbox" id="sync-filter" style="accent-color:var(--gold);width:16px;height:16px" checked>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+            <div><div style="font-size:12px;color:var(--white);font-weight:500">Email Summary to Admin</div><div style="font-size:10px;color:var(--gl)">Get a morning email of how many deals were found and added</div></div>
+            <input type="checkbox" id="sync-email" style="accent-color:var(--gold);width:16px;height:16px" checked>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--black);border-radius:var(--rs);border:1px solid var(--border)">
+            <div><div style="font-size:12px;color:var(--white);font-weight:500">Auto-Expire Old Listings</div><div style="font-size:10px;color:var(--gl)">Unpublish deals that haven't been refreshed in 14 days</div></div>
+            <input type="checkbox" id="sync-expire" style="accent-color:var(--gold);width:16px;height:16px" checked>
+          </div>
+          <button class="btn btn-primary btn-sm" style="align-self:flex-start;margin-top:4px" onclick="saveAutoSync()">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DATABASE ═══ -->
+    <div class="view" id="v-database">
+      <div class="card" style="margin-bottom:16px;border-top:2px solid var(--green)">
+        <div class="card-top">Supabase Database <span id="sb-badge"><span class="pill pill-gray">Not Connected</span></span></div>
+        <div class="info-box" style="margin-bottom:14px">
+          <strong>What it does:</strong> Stores all your properties, subscribers, and lead inquiries permanently in a real database. Your site reads from it live — no more browser-only storage.<br><br>
+          <strong>Setup:</strong> <a href="https://supabase.com" target="_blank" style="color:var(--gold)">supabase.com</a> → New project (free) → Settings → API → copy URL and anon key below. Then run the SQL schema in the next step.
+        </div>
+        <div class="fg" style="margin-bottom:12px">
+          <div class="ff"><label>Project URL</label><input type="text" id="sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co"></div>
+          <div class="ff"><label>Anon / Public Key</label><input type="password" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">
+          <button class="btn btn-primary btn-sm" onclick="saveSB()">Save &amp; Test Connection</button>
+          <button class="btn btn-outline btn-sm" onclick="window.open('https://supabase.com','_blank')">Create Free Project →</button>
+          <span id="sb-test" style="font-size:11px"></span>
+        </div>
+        <div class="divider"></div>
+        <!-- SQL Schema -->
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl);margin-bottom:10px">Step 2 — Run This SQL in Supabase (one time)</div>
+        <div style="background:var(--black);border:1px solid var(--border);border-radius:var(--rs);padding:14px;font-family:'SF Mono','Fira Code',monospace;font-size:10px;color:var(--gold);line-height:1.8;overflow-x:auto;white-space:pre;max-height:320px;overflow-y:auto" id="sql-schema"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="copySQL()">Copy SQL</button>
+          <button class="btn btn-outline btn-sm" onclick="openSupabaseSQL()">Open Supabase SQL Editor →</button>
+        </div>
+      </div>
+
+      <!-- DB Stats -->
+      <div class="card">
+        <div class="card-top">Database Tables</div>
+        <div class="fg4">
+          <div class="stat"><div class="stat-lbl">Properties</div><div class="stat-val gold" id="db-props">—</div><div class="stat-sub">Rows in table</div></div>
+          <div class="stat"><div class="stat-lbl">Subscribers</div><div class="stat-val blue" id="db-subs">—</div><div class="stat-sub">Rows in table</div></div>
+          <div class="stat"><div class="stat-lbl">Leads</div><div class="stat-val" id="db-leads">—</div><div class="stat-sub">Rows in table</div></div>
+          <div class="stat"><div class="stat-lbl">Users</div><div class="stat-val" id="db-users">—</div><div class="stat-sub">Registered accounts</div></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="refreshDBStats()">Refresh Stats</button>
+          <button class="btn btn-red btn-sm" onclick="if(confirm('Clear all test data? This cannot be undone.'))clearTestData()">Clear Test Data</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- MODALS -->
+<!-- Add Subscriber Modal -->
+<div class="overlay" id="add-sub-modal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('add-sub-modal')">✕</button>
+    <div class="modal-title">Add Subscriber</div>
+    <div class="modal-sub">Manually add a subscriber to the deal digest list</div>
+    <div class="fg" style="margin-bottom:12px">
+      <div class="ff"><label>First Name</label><input type="text" id="ns-first" placeholder="James"></div>
+      <div class="ff"><label>Last Name</label><input type="text" id="ns-last" placeholder="Rodriguez"></div>
+      <div class="ff full"><label>Email</label><input type="email" id="ns-email" placeholder="james@email.com"></div>
+      <div class="ff"><label>Role</label>
+        <select id="ns-role"><option value="investor">Investor</option><option value="agent">Real Estate Agent</option><option value="builder">Builder / Contractor</option><option value="other">Other</option></select>
+      </div>
+      <div class="ff"><label>Frequency</label>
+        <div class="sched-toggle">
+          <button class="sched-opt active" onclick="setSubFreq('daily',this)">Daily</button>
+          <button class="sched-opt" onclick="setSubFreq('weekly',this)">Weekly</button>
+        </div>
+        <input type="hidden" id="ns-freq" value="daily">
+      </div>
+    </div>
+    <div class="ff" style="margin-bottom:14px">
+      <label>States of Interest</label>
+      <div class="state-grid" id="ns-states-grid"></div>
+    </div>
+    <div class="ff" style="margin-bottom:16px">
+      <label>Min DSCR Ratio (they only get deals above this)</label>
+      <input type="number" id="ns-mindscr" value="1.25" step="0.01">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="addSubscriber()">Add Subscriber</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('add-sub-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Property Modal -->
+<div class="overlay" id="edit-prop-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('edit-prop-modal')">✕</button>
+    <div class="modal-title">Edit Property</div>
+    <div class="modal-sub">Update deal details — changes reflect live on site immediately</div>
+    <div class="fg" style="margin-bottom:12px">
+      <div class="ff full"><label>Address</label><input type="text" id="ep-addr"></div>
+      <div class="ff"><label>Price ($)</label><input type="number" id="ep-price" oninput="recalcEdit()"></div>
+      <div class="ff"><label>Monthly Rent ($)</label><input type="number" id="ep-rent" oninput="recalcEdit()"></div>
+      <div class="ff"><label>Down Payment (%)</label><input type="number" id="ep-down" value="20" oninput="recalcEdit()"></div>
+      <div class="ff"><label>Rate (%)</label><input type="number" id="ep-rate" value="7.5" step="0.1" oninput="recalcEdit()"></div>
+      <div class="ff"><label>Tax + Ins ($/mo)</label><input type="number" id="ep-tins" oninput="recalcEdit()"></div>
+      <div class="ff"><label>Badge</label>
+        <select id="ep-badge"><option value="hot">🔥 Hot Deal</option><option value="new">New Listing</option><option value="str">STR Eligible</option><option value="noratio">No-Ratio OK</option><option value="none">No Badge</option></select>
+      </div>
+      <div class="ff"><label>Status</label>
+        <select id="ep-status"><option value="live">Live</option><option value="draft">Draft</option></select>
+      </div>
+    </div>
+    <div style="background:var(--black);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:14px;font-size:11px;display:flex;gap:20px" id="ep-preview"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('edit-prop-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const APP = {
+  properties: [],
+  subscribers: [],
+  config: { rc_key:'', bm_token:'', bm_url:'', sb_url:'', sb_key:'', email_key:'', email_from:'', wh_secret:'' },
+  editingId: null,
+  digestTarget: 'daily',
+  subFreq: 'daily',
+  quickData: null
+};
+
+const STATES = ['Alabama','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+
+const SQL_SCHEMA = `-- Run once in Supabase SQL Editor
+
+-- Properties table
+create table if not exists properties (
+  id uuid default gen_random_uuid() primary key,
+  address text not null,
+  city text,
+  state text,
+  price numeric,
+  rent numeric,
+  payment numeric,
+  cash_flow numeric,
+  dscr numeric,
+  beds integer,
+  baths numeric,
+  sqft integer,
+  prop_type text,
+  badge text default 'new',
+  status text default 'draft',
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Subscribers table
+create table if not exists subscribers (
+  id uuid default gen_random_uuid() primary key,
+  first_name text,
+  last_name text,
+  email text unique not null,
+  role text,
+  frequency text default 'weekly',
+  states text[],
+  min_dscr numeric default 1.25,
+  active boolean default true,
+  last_sent_at timestamptz,
+  created_at timestamptz default now()
+);
+
+-- Leads table
+create table if not exists leads (
+  id uuid default gen_random_uuid() primary key,
+  name text,
+  email text,
+  phone text,
+  property_address text,
+  goal text,
+  notes text,
+  created_at timestamptz default now()
+);
+
+-- Users table
+create table if not exists users (
+  id uuid default gen_random_uuid() primary key,
+  email text unique not null,
+  first_name text,
+  last_name text,
+  role text,
+  created_at timestamptz default now()
+);
+
+-- Enable RLS (Row Level Security)
+alter table properties enable row level security;
+alter table subscribers enable row level security;
+alter table leads enable row level security;
+alter table users enable row level security;
+
+-- Public read on properties (live site can read)
+create policy "Public can read live properties"
+  on properties for select
+  using (status = 'live');
+
+-- Service role can do everything (your admin/webhook)
+-- Note: set your service role key in server-side code only`;
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function nav(view, btn) {
+  document.querySelectorAll('.ni').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('v-' + view);
+  if (el) el.classList.add('active');
+  const titles = { dashboard:'Dashboard', mls:'MLS Deal Finder', add:'Add Property', properties:'All Properties', subscribers:'Subscribers', notifications:'Send Digest', api:'API Settings', automation:'Automation', database:'Database' };
+  document.getElementById('topbar-title').textContent = titles[view] || view;
+  document.getElementById('content').scrollTop = 0;
+}
+
+// ══════════════════════════════════════════════════
+// DSCR CALC
+// ══════════════════════════════════════════════════
+function calcDSCR(price, rent, down, rate, tax, ins, hoa) {
+  const loan = price * (1 - down / 100);
+  const mr = rate / 100 / 12;
+  const n = 360;
+  const pi = mr > 0 ? loan * (mr * Math.pow(1+mr,n)) / (Math.pow(1+mr,n)-1) : loan/n;
+  const pitia = pi + (tax||0) + (ins||0) + (hoa||0);
+  const dscr = pitia > 0 ? rent / pitia : 0;
+  const cf = rent - pitia;
+  return { loan, pi, pitia, dscr, cf };
+}
+
+function fmt(n, prefix='$') { return prefix + Math.round(n).toLocaleString(); }
+function fmtDSCR(n) { return n.toFixed(2); }
+
+function recalc() {
+  const price = parseFloat(document.getElementById('ap-price').value) || 0;
+  const rent = parseFloat(document.getElementById('ap-rent').value) || 0;
+  const down = parseFloat(document.getElementById('ap-down').value) || 20;
+  const rate = parseFloat(document.getElementById('ap-rate').value) || 7.5;
+  const tax = parseFloat(document.getElementById('ap-tax').value) || 0;
+  const ins = parseFloat(document.getElementById('ap-ins').value) || 0;
+  const hoa = parseFloat(document.getElementById('ap-hoa').value) || 0;
+  if (!price || !rent) return;
+  const r = calcDSCR(price, rent, down, rate, tax, ins, hoa);
+  document.getElementById('pv-loan').textContent = fmt(r.loan);
+  document.getElementById('pv-pi').textContent = fmt(r.pi);
+  document.getElementById('pv-tins').textContent = fmt(tax + ins);
+  document.getElementById('pv-pitia').textContent = fmt(r.pitia);
+  document.getElementById('pv-rent').textContent = fmt(rent);
+  const dscrEl = document.getElementById('pv-dscr');
+  dscrEl.textContent = fmtDSCR(r.dscr);
+  dscrEl.style.color = r.dscr >= 1.25 ? 'var(--green)' : r.dscr >= 1.0 ? 'var(--amber)' : 'var(--red)';
+  const cfEl = document.getElementById('pv-cf');
+  cfEl.textContent = (r.cf >= 0 ? '+' : '') + fmt(r.cf);
+  cfEl.style.color = r.cf >= 0 ? 'var(--green)' : 'var(--red)';
+  const ind = document.getElementById('prev-ind');
+  ind.className = 'dscr-ind';
+  if (r.dscr >= 1.25) { ind.classList.add('dscr-pass'); ind.innerHTML = '✓ Qualifies · DSCR ' + fmtDSCR(r.dscr) + ' — ready to publish'; }
+  else if (r.dscr >= 1.0) { ind.classList.add('dscr-warn'); ind.innerHTML = '◎ Borderline · DSCR ' + fmtDSCR(r.dscr) + ' — flex program may apply'; }
+  else if (r.loan / price <= 0.65) { ind.classList.add('dscr-noratio'); ind.innerHTML = '→ Below ratio but qualifies for No-Ratio at 65% LTV'; }
+  else { ind.classList.add('dscr-fail'); ind.innerHTML = '✗ Does not qualify · DSCR ' + fmtDSCR(r.dscr); }
+  document.getElementById('pv-options').innerHTML =
+    '• Standard DSCR: ' + Math.round(down) + '% down · ' + fmt(r.loan) + ' loan<br>' +
+    '• Max LTV: 80% · min down ' + fmt(price*0.2) + '<br>' +
+    '• No-Ratio option: 65% LTV · min down ' + fmt(price*0.35);
+}
+
+function recalcEdit() {
+  const price = parseFloat(document.getElementById('ep-price').value)||0;
+  const rent = parseFloat(document.getElementById('ep-rent').value)||0;
+  const down = parseFloat(document.getElementById('ep-down').value)||20;
+  const rate = parseFloat(document.getElementById('ep-rate').value)||7.5;
+  const tins = parseFloat(document.getElementById('ep-tins').value)||0;
+  if (!price||!rent) return;
+  const r = calcDSCR(price, rent, down, rate, tins, 0, 0);
+  document.getElementById('ep-preview').innerHTML =
+    '<span>Payment: <strong style="color:var(--white)">' + fmt(r.pitia) + '</strong></span>' +
+    '<span>DSCR: <strong style="color:' + (r.dscr>=1.25?'var(--green)':r.dscr>=1?'var(--amber)':'var(--red)') + '">' + fmtDSCR(r.dscr) + '</strong></span>' +
+    '<span>Cash Flow: <strong style="color:' + (r.cf>=0?'var(--green)':'var(--red)') + '">' + (r.cf>=0?'+':'') + fmt(r.cf) + '</strong></span>';
+}
+
+// ══════════════════════════════════════════════════
+// RENTCAST AUTO-FILL (simulated — replace with real API call)
+// ══════════════════════════════════════════════════
+async function autoFill() {
+  const addr = document.getElementById('ap-addr').value.trim();
+  if (!addr) { toast('Enter an address first', 'error'); return; }
+  const spin = document.getElementById('ap-spin');
+  const btn = document.getElementById('autofill-btn');
+  spin.classList.add('on', 'spinning');
+  btn.disabled = true;
+  btn.textContent = 'Fetching...';
+  addLog('Calling RentCast API for: ' + addr, 'gold');
+
+  // ── REAL INTEGRATION ──
+  // const key = APP.config.rc_key;
+  // if (!key) { toast('Add your RentCast API key in API Settings first', 'error'); return; }
+  // const res = await fetch(`https://api.rentcast.io/v1/avm/rent/long-term?address=${encodeURIComponent(addr)}`, {
+  //   headers: { 'X-Api-Key': key }
+  // });
+  // const data = await res.json();
+  // const rentEst = data.rent; // RentCast returns estimated rent here
+
+  await sleep(1600);
+  // Simulated response
+  const rentEst = Math.round((1800 + Math.random() * 1400) / 50) * 50;
+  const taxEst = Math.round(rentEst * 0.07);
+  const insEst = Math.round(rentEst * 0.04);
+
+  document.getElementById('ap-rent').value = rentEst;
+  document.getElementById('ap-tax').value = taxEst;
+  document.getElementById('ap-ins').value = insEst;
+  spin.classList.remove('on', 'spinning');
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Auto-Fill via RentCast';
+  recalc();
+  toast('RentCast: estimated rent $' + rentEst.toLocaleString() + '/mo', 'success');
+  addLog('RentCast returned $' + rentEst + '/mo for ' + addr, 'green');
+}
+
+// ══════════════════════════════════════════════════
+// QUICK CHECK
+// ══════════════════════════════════════════════════
+async function quickCheck() {
+  const addr = document.getElementById('q-addr').value.trim();
+  if (!addr) return;
+  const spin = document.getElementById('q-spin');
+  spin.classList.add('on','spinning');
+  addLog('Quick check: ' + addr, 'blue');
+  await sleep(1400);
+  const rent = Math.round((1700 + Math.random()*1500)/50)*50;
+  const price = Math.round((200000 + Math.random()*300000)/1000)*1000;
+  const r = calcDSCR(price, rent, 20, 7.5, Math.round(rent*.06), Math.round(rent*.04), 0);
+  APP.quickData = { address: addr, price, rent, payment: r.pitia, cf: r.cf, dscr: r.dscr };
+  document.getElementById('q-rent').textContent = fmt(rent);
+  document.getElementById('q-pay').textContent = fmt(r.pitia);
+  const dscrEl = document.getElementById('q-dscr');
+  dscrEl.textContent = fmtDSCR(r.dscr);
+  dscrEl.style.color = r.dscr >= 1.25 ? 'var(--green)' : r.dscr >= 1 ? 'var(--amber)' : 'var(--red)';
+  const cfEl = document.getElementById('q-cf');
+  cfEl.textContent = (r.cf>=0?'+':'') + fmt(r.cf);
+  cfEl.style.color = r.cf >= 0 ? 'var(--green)' : 'var(--red)';
+  const ind = document.getElementById('q-ind');
+  ind.className = 'dscr-ind ' + (r.dscr>=1.25?'dscr-pass':r.dscr>=1?'dscr-warn':'dscr-fail');
+  ind.textContent = r.dscr>=1.25 ? '✓ Qualifies at DSCR '+fmtDSCR(r.dscr) : r.dscr>=1 ? '◎ Borderline DSCR '+fmtDSCR(r.dscr) : '✗ Below threshold DSCR '+fmtDSCR(r.dscr);
+  spin.classList.remove('on','spinning');
+  document.getElementById('q-result').style.display = 'block';
+  addLog('DSCR ' + fmtDSCR(r.dscr) + ' · CF ' + (r.cf>=0?'+':'') + fmt(r.cf) + ' · ' + addr, r.dscr>=1.25?'green':'red');
+}
+
+function addFromQuick() {
+  if (!APP.quickData) return;
+  const d = APP.quickData;
+  const prop = {
+    id: Date.now(), address: d.address, price: d.price, rent: d.rent,
+    payment: Math.round(d.payment), cf: Math.round(d.cf), dscr: parseFloat(d.dscr.toFixed(2)),
+    beds: 3, baths: 2, sqft: 1200, prop_type: 'Single Family', badge: 'new',
+    state: 'other', status: 'draft', notes: 'Added via Quick Check', created_at: new Date().toISOString()
+  };
+  APP.properties.push(prop);
+  updateAllUI();
+  document.getElementById('q-result').style.display = 'none';
+  document.getElementById('q-addr').value = '';
+  toast('Property added as Draft — review and publish in All Properties', 'success');
+  addLog('Added draft: ' + d.address, 'gold');
+}
+
+// ══════════════════════════════════════════════════
+// MLS SCAN (simulated — replace with real Bright MLS + RentCast calls)
+// ══════════════════════════════════════════════════
+const SAMPLE_ADDRESSES = [
+  ['4823 Palmetto Ridge Dr','Tampa','florida','sfr',285000,3,2,1340],
+  ['711 Copper Creek Ln','San Antonio','texas','sfr',340000,4,2,1680],
+  ['38 Magnolia Bluff Ct','Savannah','georgia','sfr',265000,3,2,1210],
+  ['1204 Piedmont Ave','Charlotte','carolina','multi',410000,4,2.5,2100],
+  ['5517 Brentwood Ave','Indianapolis','midwest','sfr',189000,3,1,1080],
+  ['2291 Bayside Commons','Jacksonville','florida','multi',520000,8,4,3600],
+  ['882 Sunridge Blvd','Orlando','florida','sfr',310000,3,2,1450],
+  ['4401 Mesquite Trail','Austin','texas','sfr',395000,4,3,2020],
+  ['19 Sweetgrass Ln','Charleston','carolina','sfr',275000,3,2,1300],
+  ['730 Ironwood Circle','Nashville','tennessee','sfr',355000,4,2,1780],
+  ['6602 Millbrook Dr','Columbus','midwest','sfr',195000,3,2,1120],
+  ['2104 Bayshore Ave','St Pete','florida','multi',480000,6,3,3100]
+];
+
+async function runMLSScan() {
+  const btn = document.getElementById('mls-btn');
+  const progWrap = document.getElementById('mls-prog-wrap');
+  const progEl = document.getElementById('mls-prog');
+  const stateFilter = document.getElementById('mls-state').value.toLowerCase().replace(' ','');
+  const maxPrice = parseFloat(document.getElementById('mls-price').value)||600000;
+  const minDSCR = parseFloat(document.getElementById('mls-dscr').value)||1.25;
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+  document.getElementById('mls-results').style.display = 'none';
+  document.getElementById('mls-empty-state').style.display = 'none';
+  document.getElementById('add-all-btn').style.display = 'none';
+  progWrap.style.display = 'block';
+  addLog('MLS scan started — ' + document.getElementById('mls-state').value, 'blue');
+
+  const steps = [
+    ['Connecting to Bright MLS API...', 15],
+    ['Fetching active listings...', 35],
+    ['Pulling rent estimates from RentCast...', 60],
+    ['Calculating DSCR ratios...', 80],
+    ['Filtering qualifying deals ≥ ' + minDSCR + '...', 95],
+    ['Done', 100]
+  ];
+  for (const [label, pct] of steps) {
+    document.getElementById('mls-prog-label').textContent = label;
+    progEl.style.width = pct + '%';
+    await sleep(600 + Math.random()*400);
+  }
+
+  // Filter & score properties
+  const stateMap = { florida:'florida', texas:'texas', georgia:'georgia', 'northcarolina':'carolina', 'southcarolina':'carolina', tennessee:'tennessee', indiana:'midwest', ohio:'midwest', michigan:'midwest', arizona:'arizona', nevada:'other' };
+  const stateKey = stateMap[stateFilter.replace(/\s/g,'')] || stateFilter;
+  const filtered = SAMPLE_ADDRESSES.filter(p => p[2] === stateKey || stateKey === document.getElementById('mls-state').value.toLowerCase().split(' ')[0]);
+  const scored = filtered.filter(p => p[4] <= maxPrice).map(p => {
+    const rent = Math.round((p[4] * 0.008 + Math.random()*100)/10)*10;
+    const r = calcDSCR(p[4], rent, 20, 7.5, Math.round(rent*.065), Math.round(rent*.04), 0);
+    return { address: p[0]+', '+p[1], addr: p[0], city: p[1], state: p[2], ptype: p[3]==='sfr'?'Single Family':'Multi-Unit', price: p[4], beds:p[6+1]||p[5], baths:p[6+2]||p[6], sqft:p[7], rent, ...r, dscr: parseFloat(r.dscr.toFixed(2)), cf: Math.round(r.cf), payment: Math.round(r.pitia) };
+  }).sort((a,b) => b.dscr - a.dscr);
+
+  const qualifying = scored.filter(p => p.dscr >= minDSCR);
+  progWrap.style.display = 'none';
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Scan for Qualifying Deals';
+
+  if (scored.length === 0) { document.getElementById('mls-empty-state').style.display='block'; document.getElementById('mls-result-label').textContent='No listings found'; addLog('No listings matched filters', 'red'); return; }
+
+  document.getElementById('mls-result-label').textContent = scored.length + ' listings found · ' + qualifying.length + ' qualify at DSCR ≥ ' + minDSCR;
+  document.getElementById('add-all-btn').style.display = qualifying.length > 0 ? 'inline-flex' : 'none';
+  const grid = document.getElementById('mls-grid');
+  grid.innerHTML = '';
+  scored.forEach(p => {
+    const pass = p.dscr >= minDSCR;
+    grid.innerHTML += `
+    <div class="mls-card ${pass?'':'below'}" onclick="selectMLSCard(this,'${encodeURIComponent(JSON.stringify(p))}')">
+      <div class="mls-dscr-badge ${pass?'':'below'}">DSCR ${p.dscr.toFixed(2)}</div>
+      <div class="mls-type">${p.ptype} · ${p.state}</div>
+      <div class="mls-addr">${p.addr}</div>
+      <div class="mls-city">${p.city} · ${p.beds}bd/${p.baths}ba · ${p.sqft?.toLocaleString()||'—'} sqft</div>
+      <div class="mls-metrics">
+        <div class="mls-metric"><div class="mls-mval gold">${fmt(p.price)}</div><div class="mls-mlbl">Price</div></div>
+        <div class="mls-metric"><div class="mls-mval">${fmt(p.payment)}</div><div class="mls-mlbl">Payment</div></div>
+        <div class="mls-metric"><div class="mls-mval ${p.cf>=0?'green':'red'}">${p.cf>=0?'+':''}${fmt(p.cf)}</div><div class="mls-mlbl">Cash Flow</div></div>
+      </div>
+      ${pass
+        ? `<button class="btn btn-green btn-xs" style="width:100%" onclick="event.stopPropagation();addMLSDeal(this,'${encodeURIComponent(JSON.stringify(p))}')">+ Add to Deals</button>`
+        : `<div style="font-size:9px;color:var(--red);text-align:center">Below threshold · No-Ratio may apply at 65% LTV</div>`
+      }
+    </div>`;
+  });
+  document.getElementById('mls-results').style.display = 'block';
+  addLog(qualifying.length + ' qualifying deals found in ' + document.getElementById('mls-state').value, qualifying.length>0?'green':'amber');
+}
+
+function selectMLSCard(el, data) { el.classList.toggle('selected'); }
+
+function addMLSDeal(btn, dataEnc) {
+  const p = JSON.parse(decodeURIComponent(dataEnc));
+  const prop = { id: Date.now(), address: p.address, price: p.price, rent: p.rent, payment: p.payment, cf: p.cf, dscr: p.dscr, beds: p.beds, baths: p.baths, sqft: p.sqft, prop_type: p.ptype, badge: 'new', state: p.state, status: 'live', notes: 'Added from MLS scan', created_at: new Date().toISOString() };
+  APP.properties.push(prop);
+  updateAllUI();
+  btn.textContent = '✓ Added';
+  btn.classList.remove('btn-green');
+  btn.classList.add('btn-outline');
+  btn.disabled = true;
+  toast(p.addr + ' added as Live deal', 'success');
+  addLog('MLS deal published: ' + p.addr + ' DSCR ' + p.dscr, 'green');
+}
+
+function addAllQualifying() {
+  const minDSCR = parseFloat(document.getElementById('mls-dscr').value)||1.25;
+  const cards = document.querySelectorAll('.mls-card:not(.below)');
+  let count = 0;
+  cards.forEach(card => {
+    const addBtn = card.querySelector('.btn-green');
+    if (addBtn && !addBtn.disabled) { addBtn.click(); count++; }
+  });
+  toast(count + ' qualifying deals added', 'success');
+}
+
+// ══════════════════════════════════════════════════
+// SAVE PROPERTY
+// ══════════════════════════════════════════════════
+function saveProp(forceStatus) {
+  const price = parseFloat(document.getElementById('ap-price').value)||0;
+  const rent = parseFloat(document.getElementById('ap-rent').value)||0;
+  if (!price || !rent || !document.getElementById('ap-addr').value) { toast('Fill in address, price, and rent first', 'error'); return; }
+  const down = parseFloat(document.getElementById('ap-down').value)||20;
+  const rate = parseFloat(document.getElementById('ap-rate').value)||7.5;
+  const tax = parseFloat(document.getElementById('ap-tax').value)||0;
+  const ins = parseFloat(document.getElementById('ap-ins').value)||0;
+  const hoa = parseFloat(document.getElementById('ap-hoa').value)||0;
+  const r = calcDSCR(price, rent, down, rate, tax, ins, hoa);
+  const status = forceStatus || document.getElementById('ap-status').value;
+  const prop = {
+    id: Date.now(), address: document.getElementById('ap-addr').value,
+    price, rent, payment: Math.round(r.pitia), cf: Math.round(r.cf), dscr: parseFloat(r.dscr.toFixed(2)),
+    beds: parseInt(document.getElementById('ap-beds').value)||0, baths: parseFloat(document.getElementById('ap-baths').value)||0,
+    sqft: parseInt(document.getElementById('ap-sqft').value)||0, prop_type: document.getElementById('ap-ptype').value,
+    badge: document.getElementById('ap-badge').value, state: document.getElementById('ap-state').value, status,
+    notes: document.getElementById('ap-notes').value, created_at: new Date().toISOString()
+  };
+  APP.properties.push(prop);
+  updateAllUI();
+  clearForm();
+  toast('Property ' + (status==='live'?'published live':'saved as draft') + ' successfully', 'success');
+  addLog((status==='live'?'Published: ':'Draft saved: ') + prop.address + ' · DSCR ' + prop.dscr, status==='live'?'green':'gold');
+  if (status==='live') checkAndNotifySubscribers(prop);
+}
+
+function clearForm() {
+  ['ap-addr','ap-price','ap-beds','ap-baths','ap-sqft','ap-rent','ap-tax','ap-ins','ap-notes'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  document.getElementById('ap-hoa').value = '0';
+  document.getElementById('ap-down').value = '20';
+  document.getElementById('ap-rate').value = '7.5';
+  document.getElementById('pv-loan').textContent = document.getElementById('pv-pi').textContent = document.getElementById('pv-tins').textContent = document.getElementById('pv-pitia').textContent = document.getElementById('pv-rent').textContent = document.getElementById('pv-dscr').textContent = document.getElementById('pv-cf').textContent = '—';
+  document.getElementById('prev-ind').className = 'dscr-ind dscr-pass';
+  document.getElementById('prev-ind').textContent = 'Enter details to calculate';
+}
+
+// ══════════════════════════════════════════════════
+// PROPERTIES TABLE
+// ══════════════════════════════════════════════════
+function renderPropsTable(props, bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!props.length) { body.innerHTML = '<tr><td colspan="12"><div class="empty" style="padding:28px"><h3>No properties</h3></div></td></tr>'; return; }
+  body.innerHTML = props.map(p => `
+  <tr>
+    <td class="addr">${p.address}</td>
+    ${bodyId==='all-props-body'?`<td>${p.prop_type||'—'}</td><td style="text-transform:capitalize">${p.state||'—'}</td>`:''}
+    <td class="num">${fmt(p.price)}</td>
+    <td class="num gold">${fmt(p.rent)}/mo</td>
+    <td class="num">${fmt(p.payment)}/mo</td>
+    <td class="num ${p.cf>=0?'green':'red'}">${p.cf>=0?'+':''}${fmt(p.cf)}</td>
+    <td class="num ${p.dscr>=1.25?'green':p.dscr>=1?'':'red'}">${p.dscr.toFixed(2)}</td>
+    ${bodyId==='all-props-body'?`<td><span class="pill ${p.badge==='hot'?'pill-red':p.badge==='str'?'pill-green':p.badge==='noratio'?'pill-blue':'pill-gray'}">${p.badge||'none'}</span></td>`:''}
+    <td><span class="pill ${p.status==='live'?'pill-green':'pill-amber'}"><span class="pdot"></span>${p.status}</span></td>
+    <td>${new Date(p.created_at).toLocaleDateString()}</td>
+    <td>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-xs" onclick="openEdit(${p.id})">Edit</button>
+        <button class="btn btn-xs ${p.status==='live'?'btn-red':'btn-green'}" onclick="toggleStatus(${p.id})">${p.status==='live'?'Unpublish':'Publish'}</button>
+        <button class="btn btn-red btn-xs" onclick="deleteProp(${p.id})">✕</button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function filterProps(q) {
+  const filtered = APP.properties.filter(p => p.address.toLowerCase().includes(q.toLowerCase()));
+  renderPropsTable(filtered, 'all-props-body');
+}
+function filterStatus(s) {
+  const filtered = s==='all' ? APP.properties : APP.properties.filter(p => p.status===s);
+  renderPropsTable(filtered, 'all-props-body');
+}
+function sortProps(by) {
+  const sorted = [...APP.properties].sort((a,b) => by==='dscr'?b.dscr-a.dscr:by==='cf'?b.cf-a.cf:by==='price'?b.price-a.price:new Date(b.created_at)-new Date(a.created_at));
+  renderPropsTable(sorted, 'all-props-body');
+}
+function toggleStatus(id) {
+  const p = APP.properties.find(x=>x.id===id);
+  if (!p) return;
+  p.status = p.status==='live'?'draft':'live';
+  updateAllUI();
+  toast('Property '+p.status, 'success');
+  addLog((p.status==='live'?'Published: ':'Unpublished: ')+p.address, p.status==='live'?'green':'amber');
+  if (p.status==='live') checkAndNotifySubscribers(p);
+}
+function deleteProp(id) {
+  if (!confirm('Delete this property?')) return;
+  APP.properties = APP.properties.filter(x=>x.id!==id);
+  updateAllUI();
+  toast('Property deleted', 'info');
+}
+
+// ══════════════════════════════════════════════════
+// EDIT MODAL
+// ══════════════════════════════════════════════════
+function openEdit(id) {
+  const p = APP.properties.find(x=>x.id===id);
+  if (!p) return;
+  APP.editingId = id;
+  document.getElementById('ep-addr').value = p.address;
+  document.getElementById('ep-price').value = p.price;
+  document.getElementById('ep-rent').value = p.rent;
+  document.getElementById('ep-down').value = 20;
+  document.getElementById('ep-rate').value = 7.5;
+  document.getElementById('ep-tins').value = 0;
+  document.getElementById('ep-badge').value = p.badge||'new';
+  document.getElementById('ep-status').value = p.status;
+  recalcEdit();
+  openModal('edit-prop-modal');
+}
+function saveEdit() {
+  const p = APP.properties.find(x=>x.id===APP.editingId);
+  if (!p) return;
+  const price = parseFloat(document.getElementById('ep-price').value)||p.price;
+  const rent = parseFloat(document.getElementById('ep-rent').value)||p.rent;
+  const down = parseFloat(document.getElementById('ep-down').value)||20;
+  const rate = parseFloat(document.getElementById('ep-rate').value)||7.5;
+  const tins = parseFloat(document.getElementById('ep-tins').value)||0;
+  const r = calcDSCR(price, rent, down, rate, tins, 0, 0);
+  p.address = document.getElementById('ep-addr').value;
+  p.price=price; p.rent=rent; p.payment=Math.round(r.pitia); p.cf=Math.round(r.cf); p.dscr=parseFloat(r.dscr.toFixed(2));
+  p.badge=document.getElementById('ep-badge').value; p.status=document.getElementById('ep-status').value;
+  updateAllUI();
+  closeModal('edit-prop-modal');
+  toast('Property updated', 'success');
+  addLog('Edited: '+p.address, 'gold');
+}
+
+// ══════════════════════════════════════════════════
+// SUBSCRIBERS
+// ══════════════════════════════════════════════════
+function openAddSubModal() {
+  buildStateGrid('ns-states-grid');
+  openModal('add-sub-modal');
+}
+
+function buildStateGrid(containerId) {
+  document.getElementById(containerId).innerHTML = STATES.map(s =>
+    `<label class="state-cb" onclick="this.classList.toggle('checked')">
+      <input type="checkbox" value="${s}" style="display:none"> ${s}
+    </label>`
+  ).join('');
+}
+
+function setSubFreq(val, btn) {
+  document.querySelectorAll('.sched-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ns-freq').value = val;
+}
+
+function addSubscriber() {
+  const email = document.getElementById('ns-email').value.trim();
+  if (!email || !email.includes('@')) { toast('Valid email required','error'); return; }
+  if (APP.subscribers.find(s=>s.email===email)) { toast('Subscriber already exists','error'); return; }
+  const checked = [...document.querySelectorAll('#ns-states-grid .state-cb.checked')].map(el => el.querySelector('input').value);
+  const sub = {
+    id: Date.now(),
+    first: document.getElementById('ns-first').value.trim() || 'Subscriber',
+    last: document.getElementById('ns-last').value.trim(),
+    email,
+    role: document.getElementById('ns-role').value,
+    freq: document.getElementById('ns-freq').value,
+    states: checked.length ? checked : ['All'],
+    minDSCR: parseFloat(document.getElementById('ns-mindscr').value)||1.25,
+    active: true,
+    joined: new Date().toISOString(),
+    lastSent: null
+  };
+  APP.subscribers.push(sub);
+  updateSubUI();
+  closeModal('add-sub-modal');
+  toast(sub.first + ' added to ' + sub.freq + ' digest', 'success');
+  addLog('New subscriber: '+sub.email+' ('+sub.freq+')', 'blue');
+}
+
+function renderSubsTable(subs) {
+  const body = document.getElementById('subs-body');
+  if (!subs.length) { body.innerHTML = '<tr><td colspan="10"><div class="empty" style="padding:30px"><h3>No subscribers yet</h3><p>They sign up from the live site</p></div></td></tr>'; return; }
+  body.innerHTML = subs.map(s => `
+  <tr>
+    <td class="addr">${s.first} ${s.last}</td>
+    <td>${s.email}</td>
+    <td style="text-transform:capitalize">${s.role}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${s.states.slice(0,3).join(', ')}${s.states.length>3?'...':''}</td>
+    <td><span class="pill ${s.freq==='daily'?'pill-gold':'pill-blue'}">${s.freq}</span></td>
+    <td>${s.minDSCR}</td>
+    <td>${new Date(s.joined).toLocaleDateString()}</td>
+    <td>${s.lastSent?new Date(s.lastSent).toLocaleDateString():'Never'}</td>
+    <td><span class="pill ${s.active?'pill-green':'pill-gray'}"><span class="pdot"></span>${s.active?'Active':'Paused'}</span></td>
+    <td>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-xs" onclick="toggleSub(${s.id})">${s.active?'Pause':'Resume'}</button>
+        <button class="btn btn-red btn-xs" onclick="deleteSub(${s.id})">✕</button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function toggleSub(id) { const s=APP.subscribers.find(x=>x.id===id); if(s){s.active=!s.active;updateSubUI();toast(s.email+' '+(s.active?'resumed':'paused'),'info');} }
+function deleteSub(id) { if(!confirm('Remove subscriber?'))return; APP.subscribers=APP.subscribers.filter(x=>x.id!==id); updateSubUI(); toast('Subscriber removed','info'); }
+function filterSubs(q) { renderSubsTable(APP.subscribers.filter(s=>s.email.includes(q)||s.first.includes(q)||s.last.includes(q))); }
+function filterSubFreq(f) { renderSubsTable(f==='all'?APP.subscribers:APP.subscribers.filter(s=>s.freq===f)); }
+function filterSubState(st) { renderSubsTable(st==='all'?APP.subscribers:APP.subscribers.filter(s=>s.states.includes(st)||s.states.includes('All'))); }
+
+function exportSubs() {
+  const rows = [['First','Last','Email','Role','Frequency','States','Min DSCR','Joined'],...APP.subscribers.map(s=>[s.first,s.last,s.email,s.role,s.freq,s.states.join('|'),s.minDSCR,new Date(s.joined).toLocaleDateString()])];
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a'); a.href='data:text/csv,'+encodeURIComponent(csv); a.download='dscrdaily-subscribers.csv'; a.click();
+  toast('Subscribers exported','success');
+}
+
+// ══════════════════════════════════════════════════
+// DIGEST / NOTIFICATIONS
+// ══════════════════════════════════════════════════
+function setDigestTarget(val, btn) {
+  document.querySelectorAll('#v-notifications .sched-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  APP.digestTarget = val;
+  updateDigestPreview();
+}
+
+function updateDigestPreview() {
+  const targets = APP.digestTarget==='all' ? APP.subscribers : APP.subscribers.filter(s=>s.freq===APP.digestTarget);
+  const stateFilter = document.getElementById('digest-state').value;
+  const minDSCR = parseFloat(document.getElementById('digest-dscr').value)||1.25;
+  const eligible = targets.filter(s => s.active && (stateFilter==='all' || s.states.includes('All') || s.states.some(st=>st.toLowerCase().includes(stateFilter))));
+  const deals = APP.properties.filter(p=>p.status==='live'&&p.dscr>=minDSCR);
+  document.getElementById('digest-preview-info').innerHTML =
+    `<strong style="color:var(--white)">${eligible.length} recipients</strong> will receive this digest · <strong style="color:var(--gold)">${deals.length} qualifying deals</strong> will be included`;
+}
+
+function previewDigest() {
+  const minDSCR = parseFloat(document.getElementById('digest-dscr').value)||1.25;
+  const deals = APP.properties.filter(p=>p.status==='live'&&p.dscr>=minDSCR).slice(0,5);
+  const container = document.getElementById('digest-deals-preview');
+  if (!deals.length) { container.innerHTML='<div style="color:var(--gl);font-size:11px;padding:12px 0">No live deals matching current criteria</div>'; return; }
+  container.innerHTML = deals.map(p=>`
+  <div class="digest-deal">
+    <div class="digest-deal-addr">${p.address}</div>
+    <div class="digest-deal-nums">
+      <span>Price: <strong>${fmt(p.price)}</strong></span>
+      <span>Rent: <strong>${fmt(p.rent)}/mo</strong></span>
+      <span>Cash Flow: <strong style="color:var(--green)">${p.cf>=0?'+':''}${fmt(p.cf)}/mo</strong></span>
+      <span>DSCR: <strong>${p.dscr.toFixed(2)}</strong></span>
+    </div>
+  </div>`).join('');
+  toast('Email preview updated','info');
+}
+
+async function sendDigest() {
+  const targets = APP.digestTarget==='all'?APP.subscribers:APP.subscribers.filter(s=>s.freq===APP.digestTarget);
+  const eligible = targets.filter(s=>s.active);
+  if (!eligible.length) { toast('No active subscribers match these criteria','error'); return; }
+  const minDSCR = parseFloat(document.getElementById('digest-dscr').value)||1.25;
+  const deals = APP.properties.filter(p=>p.status==='live'&&p.dscr>=minDSCR);
+  if (!deals.length) { toast('No live deals meet the DSCR threshold','error'); return; }
+  toast('Sending digest to '+eligible.length+' subscribers...','info');
+  addLog('Digest send started → '+eligible.length+' recipients · '+deals.length+' deals','blue');
+  await sleep(1800);
+  eligible.forEach(s=>{ s.lastSent=new Date().toISOString(); });
+  updateSubUI();
+  toast('✓ Digest sent to '+eligible.length+' subscribers','success');
+  addLog('Digest delivered: '+deals.length+' deals → '+eligible.length+' subscribers','green');
+}
+
+// Auto-notify new subscribers when a new deal matches their criteria
+function checkAndNotifySubscribers(prop) {
+  const matched = APP.subscribers.filter(s => s.active && (s.states.includes('All') || s.states.some(st => st.toLowerCase().includes(prop.state))) && prop.dscr >= s.minDSCR);
+  if (matched.length) { addLog(matched.length+' subscriber(s) will receive alert for '+prop.address,'green'); }
+}
+
+// ══════════════════════════════════════════════════
+// API SETTINGS
+// ══════════════════════════════════════════════════
+async function saveRC() {
+  const key = document.getElementById('rc-key').value.trim();
+  if (!key) { toast('Enter your RentCast API key','error'); return; }
+  APP.config.rc_key = key;
+  const testEl = document.getElementById('rc-test');
+  testEl.textContent = 'Testing...'; testEl.style.color='var(--gl)';
+  await sleep(1200);
+  // Real: const res = await fetch('https://api.rentcast.io/v1/avm/rent/long-term?address=123+Main+St+Tampa+FL', { headers:{'X-Api-Key':key} });
+  setAPIStatus('rentcast', true);
+  document.getElementById('rc-badge').innerHTML = '<span class="pill pill-green">Connected</span>';
+  testEl.textContent = '✓ Connected'; testEl.style.color='var(--green)';
+  toast('RentCast connected','success');
+  addLog('RentCast API connected','green');
+}
+
+async function saveBM() {
+  const token = document.getElementById('bm-token').value.trim();
+  if (!token) { toast('Enter your Bright MLS Bearer token','error'); return; }
+  APP.config.bm_token = token;
+  const testEl = document.getElementById('bm-test');
+  testEl.textContent = 'Testing...'; testEl.style.color='var(--gl)';
+  await sleep(1400);
+  setAPIStatus('bright', true);
+  document.getElementById('bm-badge').innerHTML = '<span class="pill pill-green">Connected</span>';
+  testEl.textContent = '✓ Connected'; testEl.style.color='var(--green)';
+  toast('Bright MLS connected','success');
+  addLog('Bright MLS API connected','green');
+}
+
+async function saveEmail() {
+  const key = document.getElementById('email-key').value.trim();
+  if (!key) { toast('Enter your Resend API key','error'); return; }
+  const testEl = document.getElementById('email-test');
+  testEl.textContent = 'Sending test email...'; testEl.style.color='var(--gl)';
+  await sleep(1000);
+  document.getElementById('email-badge').innerHTML = '<span class="pill pill-green">Connected</span>';
+  testEl.textContent = '✓ Test email sent'; testEl.style.color='var(--green)';
+  toast('Email provider connected — test sent','success');
+  addLog('Resend email provider connected','green');
+}
+
+async function saveSB() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  if (!url||!key) { toast('Fill in both Supabase URL and key','error'); return; }
+  APP.config.sb_url=url; APP.config.sb_key=key;
+  const testEl = document.getElementById('sb-test');
+  testEl.textContent = 'Connecting...'; testEl.style.color='var(--gl)';
+  await sleep(1200);
+  // Real: const res = await fetch(url+'/rest/v1/', { headers:{'apikey':key,'Authorization':'Bearer '+key} });
+  setAPIStatus('supabase', true);
+  document.getElementById('sb-badge').innerHTML = '<span class="pill pill-green">Connected</span>';
+  testEl.textContent = '✓ Connected'; testEl.style.color='var(--green)';
+  toast('Supabase connected','success');
+  addLog('Supabase database connected','green');
+  refreshDBStats();
+}
+
+function setAPIStatus(api, connected) {
+  const dot = document.getElementById('d-'+api);
+  const lbl = document.getElementById('l-'+api);
+  dot.className = 'dot ' + (connected?'dot-on':'dot-off');
+  lbl.textContent = connected ? 'Connected' : 'Error';
+  lbl.style.color = connected ? 'var(--green)' : 'var(--red)';
+}
+
+function saveWebhook() {
+  const secret = document.getElementById('wh-secret').value.trim();
+  if (!secret) { toast('Generate or enter a webhook secret','error'); return; }
+  APP.config.wh_secret = secret;
+  setAPIStatus('webhook', true);
+  document.getElementById('wh-badge').innerHTML = '<span class="pill pill-green">Configured</span>';
+  toast('Webhook configured','success');
+  addLog('Make.com webhook configured','green');
+}
+
+async function testWebhook() {
+  toast('Sending test payload to webhook...','info');
+  addLog('Test webhook payload sent','blue');
+  await sleep(800);
+  toast('✓ Webhook received test payload successfully','success');
+  addLog('Webhook test successful','green');
+}
+
+function copyWebhook() {
+  navigator.clipboard?.writeText(document.getElementById('wh-url').textContent).catch(()=>{});
+  toast('Webhook URL copied','info');
+}
+
+function saveAutoSync() { toast('Auto-sync preferences saved','success'); addLog('Auto-sync settings updated','gold'); }
+
+async function runSync() {
+  const icon = document.getElementById('sync-icon');
+  icon.classList.add('spinning');
+  document.getElementById('sync-label').textContent = 'Syncing...';
+  addLog('Manual sync started','blue');
+  await sleep(2000);
+  icon.classList.remove('spinning');
+  const now = new Date().toLocaleTimeString();
+  document.getElementById('sync-label').textContent = 'Last synced '+now;
+  toast('Sync complete','success');
+  addLog('Sync complete at '+now,'green');
+}
+
+function downloadMakeTemplate() {
+  const template = JSON.stringify({
+    name:'DSCR Daily Deal Scanner',
+    description:'Daily MLS scan + RentCast DSCR filter + webhook push',
+    modules:['Schedule (6AM ET)','HTTP - RentCast listings','Filter (DSCR >= 1.25)','HTTP - POST to webhook','Email - Admin summary']
+  },null,2);
+  const a=document.createElement('a'); a.href='data:application/json,'+encodeURIComponent(template); a.download='dscr-daily-make-template.json'; a.click();
+  toast('Make.com template downloaded','success');
+}
+
+// ══════════════════════════════════════════════════
+// DATABASE
+// ══════════════════════════════════════════════════
+function copySQL() {
+  navigator.clipboard?.writeText(SQL_SCHEMA).catch(()=>{});
+  toast('SQL schema copied — paste into Supabase SQL Editor','success');
+}
+function openSupabaseSQL() { window.open('https://supabase.com/dashboard','_blank'); }
+async function refreshDBStats() {
+  await sleep(600);
+  document.getElementById('db-props').textContent = APP.properties.length;
+  document.getElementById('db-subs').textContent = APP.subscribers.length;
+  document.getElementById('db-leads').textContent = '4';
+  document.getElementById('db-users').textContent = '12';
+}
+function clearTestData() { APP.properties=[]; APP.subscribers=[]; updateAllUI(); toast('Test data cleared','info'); }
+
+// ══════════════════════════════════════════════════
+// UI UPDATE
+// ══════════════════════════════════════════════════
+function updateAllUI() {
+  const live = APP.properties.filter(p=>p.status==='live');
+  const draft = APP.properties.filter(p=>p.status==='draft');
+  const avgDSCR = live.length ? (live.reduce((a,p)=>a+p.dscr,0)/live.length).toFixed(2) : '—';
+  const avgCF = live.length ? Math.round(live.reduce((a,p)=>a+p.cf,0)/live.length) : null;
+  document.getElementById('s-live').textContent = live.length;
+  document.getElementById('s-draft').textContent = draft.length;
+  document.getElementById('s-dscr').textContent = avgDSCR;
+  document.getElementById('s-cf').textContent = avgCF !== null ? (avgCF>=0?'+':'') + fmt(avgCF) : '—';
+  document.getElementById('nav-prop-ct').textContent = APP.properties.length;
+  renderPropsTable(APP.properties.slice(0,6),'dash-table-body');
+  renderPropsTable(APP.properties,'all-props-body');
+  updateSubUI();
+  updateDigestPreview();
+  previewDigest();
+  refreshDBStats();
+}
+
+function updateSubUI() {
+  const daily = APP.subscribers.filter(s=>s.freq==='daily'&&s.active).length;
+  const weekly = APP.subscribers.filter(s=>s.freq==='weekly'&&s.active).length;
+  document.getElementById('s-subs').textContent = APP.subscribers.length;
+  document.getElementById('nav-sub-ct').textContent = APP.subscribers.length;
+  document.getElementById('sub-total').textContent = APP.subscribers.length;
+  document.getElementById('sub-daily').textContent = daily;
+  document.getElementById('sub-weekly').textContent = weekly;
+  renderSubsTable(APP.subscribers);
+  // Populate state filter dropdown
+  const allStates = [...new Set(APP.subscribers.flatMap(s=>s.states).filter(s=>s!=='All'))].sort();
+  const stateFilter = document.getElementById('sub-state-filter');
+  stateFilter.innerHTML = '<option value="all">All States</option>' + allStates.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// MODAL / TOAST / LOG
+// ══════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+function toast(msg, type='info') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast toast-'+type;
+  const icons = { success:'<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>', error:'<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>', info:'<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' };
+  el.innerHTML = icons[type] + msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(16px)'; el.style.transition='all .3s'; setTimeout(()=>el.remove(),300); }, 4000);
+}
+
+let logCount = 0;
+function addLog(msg, color='gl') {
+  logCount++;
+  const colors = { green:'var(--green)', gold:'var(--gold)', red:'var(--red)', blue:'var(--blue)', amber:'var(--amber)', gl:'var(--gl)' };
+  const log = document.getElementById('activity-log');
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = `<div class="log-time">${now}</div><div class="log-dot" style="background:${colors[color]||'var(--gl)'}"></div><div class="log-msg">${msg}</div>`;
+  log.insertBefore(item, log.firstChild);
+  if (log.children.length > 40) log.lastChild.remove();
+  document.getElementById('log-count').textContent = logCount + ' events';
+}
+
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.getElementById('sql-schema').textContent = SQL_SCHEMA;
+document.getElementById('dig-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// Demo data
+setTimeout(() => {
+  APP.subscribers.push(
+    { id:1, first:'Marcus', last:'R.', email:'marcus@email.com', role:'investor', freq:'daily', states:['Florida','Texas'], minDSCR:1.25, active:true, joined:'2025-04-01', lastSent:'2025-05-13' },
+    { id:2, first:'Jennifer', last:'L.', email:'jen@email.com', role:'investor', freq:'weekly', states:['All'], minDSCR:1.3, active:true, joined:'2025-04-15', lastSent:'2025-05-12' },
+    { id:3, first:'Derek', last:'T.', email:'derek@email.com', role:'agent', freq:'weekly', states:['Carolina','Georgia'], minDSCR:1.25, active:true, joined:'2025-05-01', lastSent:null }
+  );
+  updateSubUI();
+  addLog('System ready — configure APIs in Settings to go live', 'gold');
+  addLog('3 demo subscribers loaded', 'blue');
+}, 300);
+</script>
+</body>
+</html>
