@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCR Daily — Partner Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0a;--black2:#111;--black3:#181818;--black4:#1e1e1e;
+  --border:#262626;--border2:#333;
+  --gl:#888;--gm:#555;
+  --white:#fff;--off:#ccc;
+  --gold:#c9a84c;--gold-l:#e2c97e;--gold-d:#7a6030;--gold-glow:rgba(201,168,76,.1);
+  --green:#5aab6e;--green-bg:rgba(90,171,110,.1);--green-bd:rgba(90,171,110,.25);
+  --red:#c05555;--red-bg:rgba(192,85,85,.1);--red-bd:rgba(192,85,85,.25);
+  --blue:#5a8fc0;--blue-bg:rgba(90,143,192,.1);--blue-bd:rgba(90,143,192,.25);
+  --amber:#c09040;--amber-bg:rgba(192,144,64,.1);--amber-bd:rgba(192,144,64,.25);
+  --font-d:'Cormorant Garamond',Georgia,serif;--font-b:'DM Sans',sans-serif;--r:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--white);font-family:var(--font-b);font-size:13px;font-weight:300;display:flex;-webkit-font-smoothing:antialiased}
+
+/* ── SIDEBAR (matches admin.html) ── */
+.sb{width:56px;background:var(--black2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;height:100vh;flex-shrink:0;gap:4px}
+.sb-logo{font-family:var(--font-d);font-size:1rem;font-weight:600;color:var(--white);writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.08em;margin-bottom:20px;padding:0 6px}
+.sb-logo span{color:var(--gold)}
+.sb-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:var(--gl);cursor:pointer;transition:all .15s;border:none;background:none;font-size:14px}
+.sb-icon:hover{background:var(--black3);color:var(--white)}
+.sb-icon.active{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-d)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--black2);flex-shrink:0}
+.topbar-title{font-family:var(--font-d);font-size:1.1rem;font-weight:400}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.content{flex:1;overflow-y:auto;padding:22px}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:9px 18px;font-family:var(--font-b);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl);cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.view{display:none}.view.active{display:block}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:4px;font-family:var(--font-b);font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:var(--black)}.btn-primary:hover{background:var(--gold-l)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--off)}.btn-outline:hover{border-color:var(--gold-d);color:var(--gold)}
+.btn-green{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.btn-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.btn-sm{padding:5px 11px;font-size:10px}
+
+/* ── STAT ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.stat-lbl{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gl);margin-bottom:7px}
+.stat-val{font-family:var(--font-d);font-size:1.7rem;font-weight:300;line-height:1}
+.stat-sub{font-size:10px;color:var(--gm);margin-top:4px}
+.green{color:var(--green)}.gold{color:var(--gold)}.blue{color:var(--blue)}.red{color:var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:16px}
+.card-top{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;background:var(--black2);position:sticky;top:0;z-index:1}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:var(--black3)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:11px 12px;color:var(--off);white-space:nowrap}
+td.name{color:var(--white);font-weight:500}
+td.num{font-family:var(--font-d);font-size:.95rem}
+td.code{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--gold)}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:100px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.pill-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.pill-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.pill-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.pill-gray{background:var(--black3);color:var(--gl);border:1px solid var(--border)}
+.pdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ── FORMS ── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.ff{display:flex;flex-direction:column;gap:5px}
+.ff.full{grid-column:1/-1}
+.ff label{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gl)}
+.ff input,.ff select,.ff textarea{background:var(--black);border:1px solid var(--border);color:var(--white);padding:10px 13px;font-family:var(--font-b);font-size:13px;border-radius:4px;outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+.ff input:focus,.ff select:focus{border-color:var(--gold)}
+.fn{font-size:10px;color:var(--gm)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:mIn .28s cubic-bezier(.22,1,.36,1);position:relative}
+@keyframes mIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);border-radius:var(--r) var(--r) 0 0}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--gl);cursor:pointer;font-size:16px;padding:4px}
+.modal-close:hover{color:var(--white)}
+.modal-title{font-family:var(--font-d);font-size:1.3rem;font-weight:300;margin-bottom:4px}
+.modal-sub{font-size:11px;color:var(--gl);margin-bottom:18px}
+
+/* ── CODE BLOCK ── */
+.code-block{background:var(--black);border:1px solid var(--border);border-radius:4px;padding:14px 16px;font-family:'SF Mono','Fira Code',monospace;font-size:10px;color:var(--gold);line-height:1.8;overflow-x:auto;white-space:pre;max-height:280px;overflow-y:auto}
+.copy-btn{background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--font-b);transition:all .2s;margin-top:8px}
+.copy-btn:hover{border-color:var(--gold-d);color:var(--gold)}
+
+/* ── ACTIVITY FEED ── */
+.act-feed{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:380px;overflow-y:auto}
+.act-item{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border);background:var(--black);font-size:12px;transition:background .12s}
+.act-item:hover{background:var(--black2)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.act-time{color:var(--gm);white-space:nowrap;width:80px;flex-shrink:0;font-size:11px}
+.act-msg{color:var(--off);flex:1;line-height:1.5}
+.act-msg strong{color:var(--white)}
+.act-partner{color:var(--gold);font-size:10px;margin-left:6px}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;font-size:12px;color:var(--white);display:flex;align-items:center;gap:8px;animation:tIn .3s cubic-bezier(.22,1,.36,1);max-width:280px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+@keyframes tIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.toast-success{border-left:3px solid var(--green)}
+.toast-info{border-left:3px solid var(--gold)}
+.toast-error{border-left:3px solid var(--red)}
+
+/* ── INFO BOX ── */
+.info-box{background:var(--black);border:1px solid var(--border);border-radius:4px;padding:13px 15px;font-size:11px;color:var(--gl);line-height:1.7;margin-bottom:12px}
+.info-box strong{color:var(--white)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--gold-glow);border:1px solid var(--gold-d);border-radius:50%;font-size:9px;font-weight:700;color:var(--gold);flex-shrink:0;margin-right:6px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- SLIM SIDEBAR (icon-only, links back to main admin) -->
+<aside class="sb">
+  <div class="sb-logo">DSCR<span>Daily</span></div>
+  <button class="sb-icon" onclick="window.location='admin.html'" title="Admin Home">
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  </button>
+  <button class="sb-icon active" title="Partners">
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+  </button>
+  <button class="sb-icon" onclick="window.location='admin.html#deals'" title="Deals">
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+  </button>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Partner & Referral Tracking</div>
+    <div class="topbar-right">
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">↓ Export</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddPartner()">+ Add Partner</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+      <button class="tab" onclick="switchTab('partners',this)">Partners</button>
+      <button class="tab" onclick="switchTab('activity',this)">All Activity</button>
+      <button class="tab" onclick="switchTab('setup',this)">Setup Guide</button>
+    </div>
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="view active" id="v-overview">
+      <div class="stat-row">
+        <div class="stat"><div class="stat-lbl">Active Partners</div><div class="stat-val gold" id="s-partners">0</div><div class="stat-sub">Referral sources</div></div>
+        <div class="stat"><div class="stat-lbl">Total Clicks</div><div class="stat-val" id="s-clicks">0</div><div class="stat-sub">Link visits</div></div>
+        <div class="stat"><div class="stat-lbl">Total Signups</div><div class="stat-val green" id="s-signups">0</div><div class="stat-sub">From partner links</div></div>
+        <div class="stat"><div class="stat-lbl">Inquiries</div><div class="stat-val blue" id="s-inquiries">0</div><div class="stat-sub">Deal requests</div></div>
+        <div class="stat"><div class="stat-lbl">Top Partner</div><div class="stat-val gold" style="font-size:1.1rem" id="s-top">—</div><div class="stat-sub">By signups</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Top partners leaderboard -->
+        <div class="card">
+          <div class="card-top">Partner Leaderboard <span style="font-size:9px;color:var(--gm)">By signups</span></div>
+          <div id="leaderboard"></div>
+        </div>
+        <!-- Live activity feed -->
+        <div class="card">
+          <div class="card-top">Live Activity Feed
+            <span id="feed-live" style="display:flex;align-items:center;gap:5px;font-size:9px;color:var(--green)">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite"></span>
+              Live
+            </span>
+          </div>
+          <div class="act-feed" id="admin-feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PARTNERS ══ -->
+    <div class="view" id="v-partners">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <input type="text" placeholder="Search partners..." oninput="filterPartners(this.value)"
+          style="background:var(--black2);border:1px solid var(--border);color:var(--white);padding:9px 13px;border-radius:4px;font-family:var(--font-b);font-size:12px;outline:none;flex:1;max-width:280px">
+        <select onchange="filterPartnerRole(this.value)" style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:4px;font-family:var(--font-b);font-size:11px;outline:none">
+          <option value="all">All Roles</option>
+          <option value="agent">Real Estate Agent</option>
+          <option value="builder">Builder</option>
+          <option value="investor">Investor</option>
+          <option value="other">Other</option>
+        </select>
+        <select onchange="filterPartnerStatus(this.value)" style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:4px;font-family:var(--font-b);font-size:11px;outline:none">
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="paused">Paused</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Code</th><th>Role</th><th>Email</th>
+              <th>Clicks</th><th>Signups</th><th>Inquiries</th><th>Conv%</th>
+              <th>Last Activity</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="partners-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ACTIVITY ══ -->
+    <div class="view" id="v-activity">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <select onchange="filterActivity(this.value)" style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:4px;font-family:var(--font-b);font-size:11px;outline:none">
+          <option value="all">All Events</option>
+          <option value="signup">Signups Only</option>
+          <option value="inquiry">Inquiries Only</option>
+          <option value="page_visit">Page Visits Only</option>
+        </select>
+        <select id="partner-filter-select" onchange="filterActivityPartner(this.value)" style="background:var(--black2);border:1px solid var(--border);color:var(--gl);padding:9px 12px;border-radius:4px;font-family:var(--font-b);font-size:11px;outline:none">
+          <option value="all">All Partners</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="exportActivityCSV()">↓ Export Activity</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th>Time</th><th>Event</th><th>Partner</th><th>Lead Name</th><th>Lead Email</th><th>Page</th>
+            </tr></thead>
+            <tbody id="activity-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETUP GUIDE ══ -->
+    <div class="view" id="v-setup">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- Airtable Schema -->
+        <div class="card">
+          <div class="card-top">Airtable — Partners Table Schema</div>
+          <div class="info-box">
+            <strong>Add these fields to your Airtable base</strong> alongside your existing Deals and Subscribers tables. Create a new table called <strong>Partners</strong> and another called <strong>ReferralEvents</strong>.
+          </div>
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl);margin-bottom:8px">Partners Table</div>
+          <div class="code-block">Name          → Single line text (partner full name)
+Code          → Single line text (unique e.g. JONES-REALTY)
+PIN           → Single line text (4-digit access PIN)
+Email         → Email (notification email)
+Phone         → Phone (optional SMS alerts)
+Role          → Single select
+              → Real Estate Agent
+              → Builder / Contractor
+              → Investor
+              → Other
+Company       → Single line text
+Active        → Checkbox (default: checked)
+NotifSignup   → Checkbox (email on signup)
+NotifInquiry  → Checkbox (email on inquiry)
+NotifWeekly   → Checkbox (weekly summary)
+Notes         → Long text (internal only)
+Created       → Date (auto)</div>
+          <button class="copy-btn" onclick="copyText(this.previousElementSibling.textContent)">Copy Schema</button>
+
+          <div style="margin-top:16px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl);margin-bottom:8px">ReferralEvents Table</div>
+          <div class="code-block">event         → Single select
+              → page_visit
+              → signup
+              → inquiry
+ref_code      → Single line text (partner code)
+partner       → Single line text (partner name)
+lead_name     → Single line text
+lead_email    → Email
+lead_role     → Single line text
+lead_type     → Single select (subscriber/lead/inquiry)
+page          → Single line text
+timestamp     → Date + time
+user_agent    → Single line text</div>
+          <button class="copy-btn" onclick="copyText(this.previousElementSibling.textContent)">Copy Schema</button>
+        </div>
+
+        <!-- Make.com Workflow -->
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-top">Make.com — Partner Notification Workflow</div>
+            <div class="info-box">
+              This scenario runs every time your site sends a referral event to your webhook. It looks up the partner, checks their notification prefs, and sends them an email.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="info-box">
+                <span class="step-num">1</span><strong>Trigger: Webhook</strong><br>
+                Create a new webhook in Make.com → copy the URL → paste it into the <code style="color:var(--gold)">REFERRAL.WEBHOOK</code> constant in your landing page script
+              </div>
+              <div class="info-box">
+                <span class="step-num">2</span><strong>Module: Airtable — Search Records</strong><br>
+                Table: Partners · Filter: <code style="color:var(--gold)">{Code} = "{{1.ref_code}}"</code><br>
+                This finds the partner record so you can get their email and notification prefs
+              </div>
+              <div class="info-box">
+                <span class="step-num">3</span><strong>Module: Router (branch by event type)</strong><br>
+                Branch A: <code style="color:var(--gold)">{{1.event}} = "signup"</code> AND <code style="color:var(--gold)">{{2.NotifSignup}} = true</code><br>
+                Branch B: <code style="color:var(--gold)">{{1.event}} = "inquiry"</code> AND <code style="color:var(--gold)">{{2.NotifInquiry}} = true</code>
+              </div>
+              <div class="info-box">
+                <span class="step-num">4</span><strong>Module: Email (Resend or Gmail)</strong><br>
+                To: <code style="color:var(--gold)">{{2.Email}}</code><br>
+                Subject: "Someone from your network just connected with DSCR Daily"<br>
+                Body: Use the email template below
+              </div>
+              <div class="info-box">
+                <span class="step-num">5</span><strong>Module: Airtable — Create Record</strong><br>
+                Table: ReferralEvents · Map all fields from <code style="color:var(--gold)">{{1.*}}</code><br>
+                This logs every event permanently in your database
+              </div>
+              <div class="info-box">
+                <span class="step-num">6</span><strong>Module: Airtable — Update Record</strong><br>
+                Table: Partners · Increment the click/signup/inquiry counters on the partner record
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="window.open('https://make.com','_blank')">Open Make.com →</button>
+          </div>
+
+          <!-- Email template -->
+          <div class="card">
+            <div class="card-top">Partner Notification Email Template</div>
+            <div class="code-block">Subject: Someone from your network just connected with DSCR Daily
+
+Hi {{partner_name}},
+
+Great news — someone you referred just {{action}} on DSCR Daily.
+
+Details:
+• Event: {{event_type}}
+• Name: {{lead_name}} (if provided)
+• Time: {{timestamp}}
+
+This person found DSCR Daily through your referral link 
+(dscrdaily.com?ref={{ref_code}}), which means your network 
+is paying attention.
+
+View your full referral dashboard:
+https://dscrdaily.com/partner-portal.html
+
+—
+DSCR Daily
+dscrdaily.com
+
+---
+You're receiving this because you're a DSCR Daily partner 
+with signup notifications enabled. 
+Manage preferences: dscrdaily.com/partner-portal.html</div>
+            <button class="copy-btn" onclick="copyText(this.previousElementSibling.textContent)">Copy Template</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integration snippet -->
+      <div class="card" style="margin-top:4px">
+        <div class="card-top">Landing Page Integration — Already Done ✓</div>
+        <div class="info-box">
+          The referral tracking code is already embedded in your <strong>index.html</strong> (dscr-daily-landing.html). The only values you need to replace are the three constants at the top of the REFERRAL object. Once your Make.com webhook URL and Airtable credentials are in, the system is fully live.
+        </div>
+        <div class="code-block">// In index.html — find and replace these three values:
+
+const REFERRAL = {
+  WEBHOOK:       'https://hook.us1.make.com/YOUR_WEBHOOK_ID',
+  AIRTABLE_KEY:  'YOUR_AIRTABLE_API_KEY',
+  AIRTABLE_BASE: 'YOUR_BASE_ID',
+  ...
+}
+
+// Partner links look like:
+// dscrdaily.com?ref=JONES-REALTY
+// dscrdaily.com?ref=SMITH-BUILD
+// dscrdaily.com?ref=DEREK-T
+
+// Partner portal is at:
+// dscrdaily.com/partner-portal.html</div>
+        <button class="copy-btn" onclick="copyText(this.previousElementSibling.textContent)">Copy</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ADD PARTNER MODAL -->
+<div class="overlay" id="add-partner-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-partner-modal')">✕</button>
+    <div class="modal-title">Add New Partner</div>
+    <div class="modal-sub">Creates their tracking link and sends them portal access credentials</div>
+    <div class="fg" style="margin-bottom:12px">
+      <div class="ff"><label>Full Name</label><input type="text" id="np-name" placeholder="Marcus Jones"></div>
+      <div class="ff"><label>Company / Brokerage</label><input type="text" id="np-company" placeholder="Jones Realty Group"></div>
+      <div class="ff"><label>Email *</label><input type="email" id="np-email" placeholder="marcus@jonesrealty.com"></div>
+      <div class="ff"><label>Phone (optional)</label><input type="tel" id="np-phone" placeholder="(555) 000-0000"></div>
+      <div class="ff"><label>Role</label>
+        <select id="np-role">
+          <option value="agent">Real Estate Agent</option>
+          <option value="builder">Builder / Contractor</option>
+          <option value="investor">Investor</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Partner Code <span style="font-size:9px;color:var(--gm)">(auto-generated — editable)</span></label>
+        <input type="text" id="np-code" placeholder="JONES-REALTY" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')">
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:16px">
+      <div class="ff">
+        <label>Access PIN <span style="font-size:9px;color:var(--gm)">(4 digits — they use this to log into their portal)</span></label>
+        <input type="text" id="np-pin" placeholder="e.g. 4821" maxlength="4">
+      </div>
+      <div class="ff">
+        <label>Internal Notes</label>
+        <input type="text" id="np-notes" placeholder="How you know them, etc.">
+      </div>
+    </div>
+    <div style="background:var(--black);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--gl)">
+      Their referral link will be: <strong style="color:var(--gold)" id="preview-link">dscrdaily.com?ref=—</strong>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="addPartner()">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Add Partner
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('add-partner-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let PARTNERS = [
+  { id:1, name:'Marcus Jones',    company:'Jones Realty',   email:'marcus@jones.com', phone:'', role:'agent',   code:'JONES-REALTY', pin:'1234', active:true,  clicks:24, signups:6, inquiries:3, lastActivity:'2025-05-13T14:22:00Z', notes:'' },
+  { id:2, name:'Jennifer Smith',  company:'Smith Build Co', email:'jen@smith.com',    phone:'', role:'builder',  code:'SMITH-BUILD',  pin:'5678', active:true,  clicks:11, signups:2, inquiries:1, lastActivity:'2025-05-12T09:11:00Z', notes:'' },
+  { id:3, name:'Derek Thompson',  company:'DT Realty',      email:'derek@email.com',  phone:'', role:'agent',   code:'DEREK-T',      pin:'9012', active:true,  clicks:8,  signups:1, inquiries:2, lastActivity:'2025-05-11T16:45:00Z', notes:'' },
+];
+
+let ALL_EVENTS = [
+  { time:'2025-05-13T14:22:00Z', event:'signup',     ref_code:'jones-realty', partner:'Marcus Jones',   lead_name:'Sarah M.',   lead_email:'sarah@email.com',  page:'/' },
+  { time:'2025-05-13T11:05:00Z', event:'page_visit', ref_code:'jones-realty', partner:'Marcus Jones',   lead_name:'',           lead_email:'',                 page:'/' },
+  { time:'2025-05-13T09:30:00Z', event:'inquiry',    ref_code:'smith-build',  partner:'Jennifer Smith', lead_name:'James R.',   lead_email:'james@email.com',  page:'/#deals' },
+  { time:'2025-05-12T16:10:00Z', event:'signup',     ref_code:'derek-t',      partner:'Derek Thompson', lead_name:'Linda T.',   lead_email:'linda@email.com',  page:'/' },
+  { time:'2025-05-12T14:00:00Z', event:'page_visit', ref_code:'jones-realty', partner:'Marcus Jones',   lead_name:'',           lead_email:'',                 page:'/' },
+  { time:'2025-05-12T09:11:00Z', event:'signup',     ref_code:'smith-build',  partner:'Jennifer Smith', lead_name:'Ray C.',     lead_email:'ray@email.com',    page:'/' },
+];
+
+// ══════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('v-'+name).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════
+function renderAll() {
+  renderStats();
+  renderLeaderboard();
+  renderFeed();
+  renderPartnersTable(PARTNERS);
+  renderActivityTable(ALL_EVENTS);
+  populatePartnerFilter();
+}
+
+function renderStats() {
+  const active   = PARTNERS.filter(p=>p.active).length;
+  const clicks   = PARTNERS.reduce((a,p)=>a+p.clicks,0);
+  const signups  = PARTNERS.reduce((a,p)=>a+p.signups,0);
+  const inquiries= PARTNERS.reduce((a,p)=>a+p.inquiries,0);
+  const top      = [...PARTNERS].sort((a,b)=>b.signups-a.signups)[0];
+  document.getElementById('s-partners').textContent  = active;
+  document.getElementById('s-clicks').textContent    = clicks;
+  document.getElementById('s-signups').textContent   = signups;
+  document.getElementById('s-inquiries').textContent = inquiries;
+  document.getElementById('s-top').textContent       = top ? top.name.split(' ')[0] : '—';
+}
+
+function renderLeaderboard() {
+  const sorted = [...PARTNERS].sort((a,b)=>b.signups-a.signups).slice(0,5);
+  const max = Math.max(...sorted.map(p=>p.signups), 1);
+  document.getElementById('leaderboard').innerHTML = sorted.map((p,i) => `
+  <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+    <span style="font-family:var(--font-d);font-size:1.1rem;color:${i===0?'var(--gold)':'var(--gm)'};width:20px;flex-shrink:0">${i+1}</span>
+    <div style="flex:1">
+      <div style="font-size:.88rem;color:var(--white);font-weight:500;margin-bottom:4px">${p.name}</div>
+      <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(p.signups/max*100)}%;background:var(--gold);border-radius:2px"></div>
+      </div>
+    </div>
+    <span style="font-family:var(--font-d);font-size:1rem;color:var(--green)">${p.signups}</span>
+    <span style="font-size:10px;color:var(--gm)">signups</span>
+  </div>`).join('');
+}
+
+function renderFeed() {
+  const feed = document.getElementById('admin-feed');
+  const typeMap = {
+    page_visit: { dot:'var(--blue)',  label:'Visit' },
+    signup:     { dot:'var(--green)', label:'Signup' },
+    inquiry:    { dot:'var(--gold)',  label:'Inquiry' },
+  };
+  feed.innerHTML = ALL_EVENTS.slice(0,10).map(e => {
+    const t = typeMap[e.event]||typeMap.page_visit;
+    const action = e.event==='signup'?'signed up':e.event==='inquiry'?'sent an inquiry':'visited';
+    const who = e.lead_name ? `<strong>${e.lead_name}</strong>` : 'Someone';
+    return `
+    <div class="act-item">
+      <div class="act-time">${timeAgo(e.time)}</div>
+      <div class="act-dot" style="background:${t.dot}"></div>
+      <div class="act-msg">${who} ${action} <span class="act-partner">via ${e.partner}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderPartnersTable(partners) {
+  document.getElementById('partners-body').innerHTML = partners.map(p => {
+    const conv = p.clicks>0 ? Math.round(p.signups/p.clicks*100)+'%' : '—';
+    return `
+    <tr>
+      <td class="name">${p.name}<div style="font-size:10px;color:var(--gm)">${p.company||''}</div></td>
+      <td class="code">${p.code}</td>
+      <td style="text-transform:capitalize">${p.role}</td>
+      <td>${p.email}</td>
+      <td class="num">${p.clicks}</td>
+      <td class="num green">${p.signups}</td>
+      <td class="num blue">${p.inquiries}</td>
+      <td>${conv}</td>
+      <td>${p.lastActivity?timeAgo(p.lastActivity):'Never'}</td>
+      <td><span class="pill ${p.active?'pill-green':'pill-gray'}"><span class="pdot"></span>${p.active?'Active':'Paused'}</span></td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-outline btn-sm" onclick="copyPartnerLink('${p.code}')">Copy Link</button>
+          <button class="btn btn-outline btn-sm" onclick="viewPartner(${p.id})">View</button>
+          <button class="btn btn-sm ${p.active?'btn-red':'btn-green'}" onclick="togglePartner(${p.id})">${p.active?'Pause':'Resume'}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="11"><div style="text-align:center;padding:28px;color:var(--gm)">No partners yet — add your first one</div></td></tr>';
+}
+
+function renderActivityTable(events) {
+  const typeColors = { signup:'var(--green)', inquiry:'var(--gold)', page_visit:'var(--blue)' };
+  document.getElementById('activity-body').innerHTML = events.map(e => `
+  <tr>
+    <td style="font-size:11px;color:var(--gm)">${new Date(e.time).toLocaleString()}</td>
+    <td><span class="pill" style="background:rgba(0,0,0,.3);border:1px solid ${typeColors[e.event]||'var(--border)'};color:${typeColors[e.event]||'var(--gl)'}">${e.event.replace('_',' ')}</span></td>
+    <td class="name" style="font-size:.85rem">${e.partner}</td>
+    <td>${e.lead_name||'—'}</td>
+    <td style="font-size:11px;color:var(--gm)">${e.lead_email||'—'}</td>
+    <td style="font-size:11px;color:var(--gm)">${e.page||'/'}</td>
+  </tr>`).join('') || '<tr><td colspan="6"><div style="text-align:center;padding:24px;color:var(--gm)">No activity yet</div></td></tr>';
+}
+
+// ══════════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════════
+function filterPartners(q) { renderPartnersTable(PARTNERS.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.code.toLowerCase().includes(q.toLowerCase()))); }
+function filterPartnerRole(r) { renderPartnersTable(r==='all'?PARTNERS:PARTNERS.filter(p=>p.role===r)); }
+function filterPartnerStatus(s) { renderPartnersTable(s==='all'?PARTNERS:PARTNERS.filter(p=>(s==='active'?p.active:!p.active))); }
+function filterActivity(t) { renderActivityTable(t==='all'?ALL_EVENTS:ALL_EVENTS.filter(e=>e.event===t)); }
+function filterActivityPartner(code) { renderActivityTable(code==='all'?ALL_EVENTS:ALL_EVENTS.filter(e=>e.ref_code===code)); }
+function populatePartnerFilter() {
+  const sel = document.getElementById('partner-filter-select');
+  const existing = sel.innerHTML;
+  const opts = PARTNERS.map(p=>`<option value="${p.code.toLowerCase()}">${p.name}</option>`).join('');
+  sel.innerHTML = '<option value="all">All Partners</option>' + opts;
+}
+
+// ══════════════════════════════════════════════════
+// ADD PARTNER
+// ══════════════════════════════════════════════════
+function openAddPartner() {
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-company').value = '';
+  document.getElementById('np-email').value = '';
+  document.getElementById('np-code').value = '';
+  document.getElementById('np-pin').value = Math.floor(1000 + Math.random()*9000).toString();
+  document.getElementById('preview-link').textContent = 'dscrdaily.com?ref=—';
+  openModal('add-partner-modal');
+  document.getElementById('np-name').addEventListener('input', autoGenCode);
+}
+
+function autoGenCode() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) return;
+  const parts = name.toUpperCase().split(' ');
+  const code = parts.length >= 2 ? parts[0]+'-'+parts[1] : parts[0];
+  document.getElementById('np-code').value = code.replace(/[^A-Z0-9-]/g,'');
+  document.getElementById('preview-link').textContent = `dscrdaily.com?ref=${code}`;
+}
+document.getElementById('np-code')?.addEventListener('input', function() {
+  document.getElementById('preview-link').textContent = `dscrdaily.com?ref=${this.value||'—'}`;
+});
+
+function addPartner() {
+  const name  = document.getElementById('np-name').value.trim();
+  const email = document.getElementById('np-email').value.trim();
+  const code  = document.getElementById('np-code').value.trim().toUpperCase();
+  const pin   = document.getElementById('np-pin').value.trim();
+  if (!name)  { toast('Enter partner name','error'); return; }
+  if (!email) { toast('Enter partner email','error'); return; }
+  if (!code)  { toast('Enter a partner code','error'); return; }
+  if (PARTNERS.find(p=>p.code===code)) { toast('Code already exists — choose a different one','error'); return; }
+
+  const partner = {
+    id: Date.now(), name, company: document.getElementById('np-company').value.trim(),
+    email, phone: document.getElementById('np-phone').value.trim(),
+    role: document.getElementById('np-role').value, code, pin,
+    active:true, clicks:0, signups:0, inquiries:0, lastActivity:null,
+    notes: document.getElementById('np-notes').value.trim()
+  };
+  PARTNERS.push(partner);
+  closeModal('add-partner-modal');
+  renderAll();
+  toast(`${name} added — link: dscrdaily.com?ref=${code}`, 'success');
+
+  // ── REAL: Save to Airtable ──────────────────────────────
+  // fetch(`https://api.airtable.com/v0/${AT_BASE}/Partners`, {
+  //   method:'POST', headers:{'Authorization':'Bearer '+AT_KEY,'Content-Type':'application/json'},
+  //   body: JSON.stringify({ fields: partner })
+  // });
+
+  // ── REAL: Send welcome email via Resend ─────────────────
+  // The welcome email tells them:
+  // - Their referral link
+  // - Their portal URL and login credentials
+  // - What to expect (notifications when someone signs up)
+}
+
+function copyPartnerLink(code) {
+  navigator.clipboard?.writeText(`https://dscrdaily.com?ref=${code}`).catch(()=>{});
+  toast(`Link copied: dscrdaily.com?ref=${code}`, 'info');
+}
+
+function togglePartner(id) {
+  const p = PARTNERS.find(x=>x.id===id);
+  if (p) { p.active=!p.active; renderAll(); toast(p.name+' '+(p.active?'activated':'paused'),'info'); }
+}
+function viewPartner(id) { toast('Full partner view — open partner-portal.html?partner='+PARTNERS.find(p=>p.id===id)?.code,'info'); }
+
+// ══════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════
+function exportCSV() {
+  const rows=[['Name','Code','Role','Email','Clicks','Signups','Inquiries','Conv%','Active'],...PARTNERS.map(p=>[p.name,p.code,p.role,p.email,p.clicks,p.signups,p.inquiries,p.clicks>0?Math.round(p.signups/p.clicks*100)+'%':'—',p.active])];
+  download('dscr-partners.csv',rows.map(r=>r.join(',')).join('\n'));
+}
+function exportActivityCSV() {
+  const rows=[['Time','Event','Partner','Lead Name','Lead Email','Page'],...ALL_EVENTS.map(e=>[e.time,e.event,e.partner,e.lead_name||'',e.lead_email||'',e.page||'/'])];
+  download('dscr-referral-activity.csv',rows.map(r=>r.join(',')).join('\n'));
+}
+function download(name,content) {
+  const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(content);a.download=name;a.click();
+  toast('Downloaded '+name,'success');
+}
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+
+function copyText(txt) {
+  navigator.clipboard?.writeText(txt).catch(()=>{});
+  toast('Copied to clipboard','success');
+}
+
+function toast(msg,type='info') {
+  const wrap=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;
+  const icons={success:'<span style="color:var(--green)">✓</span>',error:'<span style="color:var(--red)">✕</span>',info:'<span style="color:var(--gold)">ℹ</span>'};
+  el.innerHTML=(icons[type]||'')+' '+msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},4000);
+}
+
+function timeAgo(iso) {
+  if (!iso) return 'Never';
+  const diff=(Date.now()-new Date(iso))/1000;
+  if(diff<60)return 'Just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+// ── INIT ──
+renderAll();
+
+// ── Pulse animation ──
+const s=document.createElement('style');
+s.textContent='@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}';
+document.head.appendChild(s);
+</script>
+</body>
+</html>
