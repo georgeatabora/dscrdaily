@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCR Daily — Partner Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0a; --black2:#111; --black3:#181818; --black4:#1e1e1e;
+  --border:#262626; --border2:#333;
+  --gl:#888; --gm:#555;
+  --white:#fff; --off:#ccc;
+  --gold:#c9a84c; --gold-l:#e2c97e; --gold-d:#7a6030; --gold-glow:rgba(201,168,76,.1);
+  --green:#5aab6e; --green-bg:rgba(90,171,110,.1); --green-bd:rgba(90,171,110,.25);
+  --red:#c05555; --red-bg:rgba(192,85,85,.1); --red-bd:rgba(192,85,85,.25);
+  --blue:#5a8fc0; --blue-bg:rgba(90,143,192,.1); --blue-bd:rgba(90,143,192,.25);
+  --font-d:'Cormorant Garamond',Georgia,serif;
+  --font-b:'DM Sans',sans-serif;
+  --r:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--font-b);font-weight:300;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ── NAV ── */
+.nav{background:rgba(10,10,10,.95);border-bottom:1px solid var(--border);padding:16px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--font-d);font-size:1.3rem;font-weight:600;letter-spacing:.04em}
+.nav-logo span{color:var(--gold)}
+.nav-badge{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-d);padding:2px 10px;border-radius:100px;margin-left:10px}
+
+/* ── LAYOUT ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.login-card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:48px 44px;width:100%;max-width:420px;position:relative}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);border-radius:var(--r) var(--r) 0 0}
+.login-logo{font-family:var(--font-d);font-size:1.3rem;font-weight:600;margin-bottom:28px}
+.login-logo span{color:var(--gold)}
+.login-heading{font-family:var(--font-d);font-size:1.9rem;font-weight:300;line-height:1.1;margin-bottom:6px}
+.login-sub{font-size:.88rem;color:var(--gl);line-height:1.6;margin-bottom:28px}
+.ff{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.ff label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl)}
+.ff input{background:var(--black);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:var(--font-b);font-size:.9rem;border-radius:4px;outline:none;transition:border-color .2s;width:100%}
+.ff input:focus{border-color:var(--gold)}
+.btn-submit{width:100%;padding:14px;background:var(--gold);color:var(--black);border:none;font-family:var(--font-b);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;margin-top:6px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:hover{background:var(--gold-l)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.login-error{font-size:.82rem;color:var(--red);min-height:18px;margin-bottom:8px}
+.login-note{font-size:.75rem;color:var(--gm);margin-top:14px;text-align:center;line-height:1.5}
+
+/* ── DASHBOARD ── */
+.dashboard{display:none;padding:36px 0 80px}
+.dash-header{margin-bottom:32px}
+.dash-greeting{font-family:var(--font-d);font-size:2.2rem;font-weight:300;margin-bottom:4px}
+.dash-greeting em{font-style:italic;color:var(--gold)}
+.dash-sub{font-size:.9rem;color:var(--gl)}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:20px 18px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat:hover{border-color:var(--gold-d)}
+.stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.stat-lbl{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gl);margin-bottom:8px}
+.stat-val{font-family:var(--font-d);font-size:2rem;font-weight:300;line-height:1;margin-bottom:4px}
+.stat-sub{font-size:10px;color:var(--gm)}
+.green{color:var(--green)} .gold{color:var(--gold)} .blue{color:var(--blue)}
+
+/* ── REFERRAL LINK BOX ── */
+.ref-link-box{background:var(--black2);border:1px solid var(--gold-d);border-radius:var(--r);padding:28px 32px;margin-bottom:28px;position:relative;overflow:hidden}
+.ref-link-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.ref-link-heading{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.ref-link-title{font-family:var(--font-d);font-size:1.4rem;font-weight:300;margin-bottom:6px}
+.ref-link-desc{font-size:.85rem;color:var(--gl);margin-bottom:20px;line-height:1.65}
+.ref-link-display{background:var(--black);border:1px solid var(--border);border-radius:4px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.ref-link-url{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--gold);word-break:break-all;flex:1}
+.copy-btn{background:var(--gold);color:var(--black);border:none;padding:8px 18px;border-radius:4px;font-family:var(--font-b);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s;white-space:nowrap;flex-shrink:0}
+.copy-btn:hover{background:var(--gold-l)}
+.ref-share-row{display:flex;gap:8px;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-b);font-size:11px;color:var(--gl);cursor:pointer;background:transparent;transition:all .2s;text-decoration:none}
+.share-btn:hover{border-color:var(--gold-d);color:var(--gold)}
+
+/* ── ACTIVITY FEED ── */
+.two-col{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+.card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.card-top{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+/* Activity items */
+.act-list{display:flex;flex-direction:column;gap:0}
+.act-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.act-content{flex:1}
+.act-title{font-size:.88rem;color:var(--white);font-weight:500;margin-bottom:2px}
+.act-meta{font-size:.78rem;color:var(--gl)}
+.act-badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.badge-visit{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.badge-signup{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.badge-inquiry{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-d)}
+
+/* ── CHART BAR ── */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:60px;padding:0 4px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;background:var(--gold-glow);border:1px solid var(--gold-d);border-radius:2px 2px 0 0;transition:height .6s cubic-bezier(.22,1,.36,1);min-height:3px}
+.bar-label{font-size:8px;color:var(--gm);white-space:nowrap}
+
+/* ── TIPS ── */
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.tip-card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .2s}
+.tip-card:hover{border-color:var(--gold-d)}
+.tip-icon{font-size:22px;margin-bottom:12px}
+.tip-title{font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:6px}
+.tip-desc{font-size:.82rem;color:var(--gl);line-height:1.6}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:var(--gl)}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+.empty h3{font-family:var(--font-d);font-size:1.1rem;font-weight:300;color:var(--white);margin-bottom:6px}
+.empty p{font-size:.82rem}
+
+/* ── NOTIFICATION PREFS ── */
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.notif-row:last-child{border-bottom:none}
+.notif-label{font-size:.88rem;color:var(--white);font-weight:500}
+.notif-desc{font-size:.78rem;color:var(--gl);margin-top:2px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:100px;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:var(--gl);border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:var(--gold)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:var(--black)}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:18px;right:18px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--white);display:flex;align-items:center;gap:9px;animation:tIn .3s cubic-bezier(.22,1,.36,1);max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+@keyframes tIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.toast-success{border-left:3px solid var(--green)}
+.toast-info{border-left:3px solid var(--gold)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .stat-row{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .tips-grid{grid-template-columns:1fr}
+  .login-card{padding:32px 24px}
+}
+@media(max-width:500px){
+  .stat-row{grid-template-columns:1fr 1fr}
+  .ref-link-display{flex-direction:column}
+  .ref-link-url{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div>
+      <span class="nav-logo">DSCR<span>Daily</span></span>
+      <span class="nav-badge">Partner Portal</span>
+    </div>
+    <div id="nav-right" style="display:none;align-items:center;gap:14px">
+      <span style="font-size:11px;color:var(--gl)" id="nav-partner-name"></span>
+      <button onclick="logout()" style="background:none;border:1px solid var(--border);color:var(--gl);padding:7px 14px;border-radius:4px;font-family:var(--font-b);font-size:11px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--gold-d)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gl)'">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">DSCR<span>Daily</span></div>
+    <div class="login-heading">Partner Portal</div>
+    <div class="login-sub">Sign in to view your referral stats, track activity from your network, and get your unique tracking link.</div>
+
+    <div class="ff">
+      <label>Partner Code</label>
+      <input type="text" id="login-code" placeholder="e.g. JONES-REALTY" oninput="clearErr()" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="ff">
+      <label>Access PIN</label>
+      <input type="password" id="login-pin" placeholder="4-digit PIN" oninput="clearErr()" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-error" id="login-err"></div>
+    <button class="btn-submit" id="login-btn" onclick="doLogin()">
+      <span>Access My Dashboard</span>
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <div class="login-note">
+      Don't have a partner code? Contact DSCR Daily to get set up.<br>
+      <a href="mailto:you@dscrdaily.com" style="color:var(--gold)">you@dscrdaily.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="dashboard" id="dashboard">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div class="dash-greeting">Good <em id="greeting-time">morning</em>, <span id="partner-display-name">Partner</span>.</div>
+      <div class="dash-sub">Here's how your network is engaging with DSCR Daily.</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-lbl">Total Clicks</div>
+        <div class="stat-val gold" id="s-clicks">0</div>
+        <div class="stat-sub">Your link visits</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Signups</div>
+        <div class="stat-val green" id="s-signups">0</div>
+        <div class="stat-sub">From your referrals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Inquiries</div>
+        <div class="stat-val blue" id="s-inquiries">0</div>
+        <div class="stat-sub">Deal / strategy requests</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Conversion Rate</div>
+        <div class="stat-val" id="s-rate">—</div>
+        <div class="stat-sub">Clicks → signups</div>
+      </div>
+    </div>
+
+    <!-- Referral Link -->
+    <div class="ref-link-box">
+      <div class="ref-link-heading">Your Referral Tracking Link</div>
+      <div class="ref-link-title">Share this link with your network</div>
+      <div class="ref-link-desc">When anyone clicks your link and signs up or submits an inquiry, you'll get an instant notification and it's tracked here in your dashboard. No money changes hands — this is purely for attribution and to show you which of your contacts are engaging.</div>
+      <div class="ref-link-display">
+        <div class="ref-link-url" id="ref-link-url">https://dscrdaily.com?ref=LOADING</div>
+        <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+      </div>
+      <div class="ref-share-row">
+        <button class="share-btn" onclick="shareEmail()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Share via Email
+        </button>
+        <button class="share-btn" onclick="shareText()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Share via Text
+        </button>
+        <button class="share-btn" onclick="shareLinkedIn()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </button>
+        <button class="share-btn" onclick="shareWhatsApp()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="two-col">
+
+      <!-- Activity Feed -->
+      <div class="card">
+        <div class="card-top">
+          Recent Activity
+          <span style="font-size:10px;color:var(--gm)" id="activity-count"></span>
+        </div>
+        <div class="act-list" id="activity-list">
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <h3>No activity yet</h3>
+            <p>Share your link and activity will appear here in real time.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- 7-day chart -->
+        <div class="card">
+          <div class="card-top">Last 7 Days</div>
+          <div class="mini-chart" id="mini-chart"></div>
+          <div style="font-size:10px;color:var(--gm);margin-top:8px;text-align:center">Referral visits per day</div>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="card">
+          <div class="card-top">Notifications</div>
+          <div class="notif-row">
+            <div>
+              <div class="notif-label">New Signup Alert</div>
+              <div class="notif-desc">Email me when someone signs up via my link</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-signup" checked onchange="saveNotifPrefs()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-row">
+            <div>
+              <div class="notif-label">New Inquiry Alert</div>
+              <div class="notif-desc">Email me when someone submits a deal inquiry</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-inquiry" checked onchange="saveNotifPrefs()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-row">
+            <div>
+              <div class="notif-label">Weekly Summary</div>
+              <div class="notif-desc">Weekly email with your referral stats</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-weekly" checked onchange="saveNotifPrefs()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div style="margin-top:14px">
+            <div class="ff" style="margin-bottom:0">
+              <label>Notification Email</label>
+              <div style="display:flex;gap:8px">
+                <input type="email" id="notif-email" placeholder="you@email.com" style="flex:1">
+                <button onclick="saveNotifPrefs()" style="background:var(--gold);color:var(--black);border:none;padding:10px 16px;border-radius:4px;font-family:var(--font-b);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick stats breakdown -->
+        <div class="card">
+          <div class="card-top">Traffic Breakdown</div>
+          <div id="traffic-breakdown" style="display:flex;flex-direction:column;gap:0">
+            <div style="text-align:center;padding:20px;color:var(--gm);font-size:.82rem">No data yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">📧</div>
+        <div class="tip-title">Add to Email Signature</div>
+        <div class="tip-desc">Put your referral link in your email signature. Every email you send becomes a passive referral touchpoint with no extra effort.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🏡</div>
+        <div class="tip-title">Share With Investor Clients</div>
+        <div class="tip-desc">When a client mentions wanting to grow their portfolio, send them your link. They'll see the deals and DSCR strategies — and you'll see the activity here.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📱</div>
+        <div class="tip-title">Post to Social Media</div>
+        <div class="tip-desc">Share the link on Instagram, LinkedIn, or Facebook with a note about DSCR investing. Use the share buttons above to make it one click.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG — replace with your real values
+// ══════════════════════════════════════════════════════
+const CONFIG = {
+  SITE_URL:      'https://dscrdaily.com',
+  // ✏️ Replace with your Airtable credentials
+  AT_KEY:        'YOUR_AIRTABLE_API_KEY',
+  AT_BASE:       'YOUR_BASE_ID',
+  AT_PARTNERS:   'Partners',
+  AT_EVENTS:     'ReferralEvents',
+  // ✏️ Replace with your Make.com webhook
+  WEBHOOK:       'https://hook.us1.make.com/YOUR_WEBHOOK_ID',
+};
+
+// ══════════════════════════════════════════════════════
+// DEMO PARTNERS (remove once Airtable is connected)
+// ══════════════════════════════════════════════════════
+const DEMO_PARTNERS = {
+  'JONES-REALTY': { pin: '1234', name: 'Marcus Jones', email: 'marcus@jonesrealty.com', role: 'Real Estate Agent' },
+  'SMITH-BUILD':  { pin: '5678', name: 'Jennifer Smith', email: 'jen@smithbuild.com',   role: 'Builder'           },
+  'DEREK-T':      { pin: '9012', name: 'Derek Thompson', email: 'derek@email.com',      role: 'Real Estate Agent' },
+  'DEMO':         { pin: '0000', name: 'Demo Partner',   email: 'demo@email.com',       role: 'Partner'           },
+};
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let PARTNER = null;
+let EVENTS  = [];
+
+// ══════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════
+async function doLogin() {
+  const code = document.getElementById('login-code').value.trim().toUpperCase();
+  const pin  = document.getElementById('login-pin').value.trim();
+  const btn  = document.getElementById('login-btn');
+  const err  = document.getElementById('login-err');
+
+  if (!code || !pin) { err.textContent = 'Enter your partner code and PIN.'; return; }
+
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Signing in...';
+
+  // ── REAL: Validate via Airtable ──────────────────────────
+  // const formula = encodeURIComponent(`AND({Code}="${code}",{PIN}="${pin}",{Active}=TRUE())`);
+  // const res = await fetch(`https://api.airtable.com/v0/${CONFIG.AT_BASE}/${CONFIG.AT_PARTNERS}?filterByFormula=${formula}`,
+  //   { headers: { Authorization: `Bearer ${CONFIG.AT_KEY}` } });
+  // const data = await res.json();
+  // if (!data.records || !data.records.length) { ... show error ... return; }
+  // PARTNER = { ...data.records[0].fields, code };
+
+  await sleep(900);
+
+  // Demo validation
+  const demo = DEMO_PARTNERS[code];
+  if (!demo || demo.pin !== pin) {
+    err.textContent = 'Invalid code or PIN. Contact DSCR Daily to get access.';
+    btn.disabled = false;
+    btn.querySelector('span').textContent = 'Access My Dashboard';
+    return;
+  }
+
+  PARTNER = { ...demo, code };
+  sessionStorage.setItem('dscr_partner', JSON.stringify(PARTNER));
+  showDashboard();
+}
+
+function clearErr() { document.getElementById('login-err').textContent = ''; }
+
+function logout() {
+  sessionStorage.removeItem('dscr_partner');
+  PARTNER = null; EVENTS = [];
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('nav-right').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+// SHOW DASHBOARD
+// ══════════════════════════════════════════════════════
+function showDashboard() {
+  document.getElementById('login-screen').style.display  = 'none';
+  document.getElementById('dashboard').style.display     = 'block';
+  document.getElementById('nav-right').style.display     = 'flex';
+  document.getElementById('nav-partner-name').textContent = PARTNER.name;
+  document.getElementById('partner-display-name').textContent = PARTNER.name.split(' ')[0];
+  document.getElementById('greeting-time').textContent = getGreeting();
+  document.getElementById('ref-link-url').textContent = `${CONFIG.SITE_URL}?ref=${PARTNER.code}`;
+  document.getElementById('notif-email').value = PARTNER.email || '';
+  loadEvents();
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+}
+
+// ══════════════════════════════════════════════════════
+// LOAD EVENTS FROM AIRTABLE
+// ══════════════════════════════════════════════════════
+async function loadEvents() {
+  // ── REAL Airtable fetch ──────────────────────────────────
+  // const formula = encodeURIComponent(`{ref_code}="${PARTNER.code.toLowerCase()}"`);
+  // const res = await fetch(`https://api.airtable.com/v0/${CONFIG.AT_BASE}/${CONFIG.AT_EVENTS}?filterByFormula=${formula}&sort[0][field]=timestamp&sort[0][direction]=desc`,
+  //   { headers: { Authorization: `Bearer ${CONFIG.AT_KEY}` } });
+  // const data = await res.json();
+  // EVENTS = (data.records || []).map(r => r.fields);
+
+  // Demo events for display
+  EVENTS = generateDemoEvents(PARTNER.code);
+  renderDashboard();
+}
+
+function generateDemoEvents(code) {
+  const types = ['page_visit','page_visit','page_visit','signup','page_visit','inquiry','signup','page_visit'];
+  const names = ['Sarah M.','James R.','','Linda T.','','Marcus W.','',''];
+  const now = Date.now();
+  return types.map((t, i) => ({
+    event: t,
+    ref_code: code.toLowerCase(),
+    lead_name: names[i],
+    lead_email: names[i] ? names[i].split(' ')[0].toLowerCase()+'@email.com' : '',
+    timestamp: new Date(now - i * 3600000 * (1 + Math.random() * 4)).toISOString(),
+  }));
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+function renderDashboard() {
+  const clicks   = EVENTS.filter(e => e.event === 'page_visit').length;
+  const signups  = EVENTS.filter(e => e.event === 'signup').length;
+  const inquiries= EVENTS.filter(e => e.event === 'inquiry').length;
+  const rate     = clicks > 0 ? Math.round((signups / clicks) * 100) + '%' : '—';
+
+  document.getElementById('s-clicks').textContent    = clicks;
+  document.getElementById('s-signups').textContent   = signups;
+  document.getElementById('s-inquiries').textContent = inquiries;
+  document.getElementById('s-rate').textContent      = rate;
+  document.getElementById('activity-count').textContent = EVENTS.length + ' events';
+
+  renderActivity();
+  renderChart();
+  renderTrafficBreakdown(clicks, signups, inquiries);
+}
+
+function renderActivity() {
+  const list = document.getElementById('activity-list');
+  if (!EVENTS.length) return;
+
+  const typeMap = {
+    page_visit: { label:'Link Visit',    cls:'badge-visit',   dot:'var(--blue)',  icon:'👆' },
+    signup:     { label:'New Signup',    cls:'badge-signup',  dot:'var(--green)', icon:'✅' },
+    inquiry:    { label:'Deal Inquiry',  cls:'badge-inquiry', dot:'var(--gold)',  icon:'📋' },
+  };
+
+  list.innerHTML = EVENTS.slice(0,12).map(e => {
+    const t = typeMap[e.event] || typeMap.page_visit;
+    const name  = e.lead_name ? `<strong style="color:var(--white)">${e.lead_name}</strong> ` : 'Someone ';
+    const action = e.event === 'signup' ? 'signed up via your link' :
+                   e.event === 'inquiry' ? 'submitted a deal inquiry' :
+                   'visited via your link';
+    const time = timeAgo(e.timestamp);
+    return `
+    <div class="act-item">
+      <div class="act-dot" style="background:${t.dot}"></div>
+      <div class="act-content">
+        <div class="act-title">${name}${action}</div>
+        <div class="act-meta">${time}</div>
+      </div>
+      <span class="act-badge ${t.cls}">${t.label}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderChart() {
+  const chart = document.getElementById('mini-chart');
+  const days  = 7;
+  const buckets = Array(days).fill(0);
+  const now = new Date();
+  EVENTS.filter(e => e.event === 'page_visit').forEach(e => {
+    const diff = Math.floor((now - new Date(e.timestamp)) / 86400000);
+    if (diff < days) buckets[days - 1 - diff]++;
+  });
+  const max = Math.max(...buckets, 1);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  chart.innerHTML = buckets.map((v, i) => {
+    const pct = Math.round((v / max) * 100);
+    const d = new Date(now - (days - 1 - i) * 86400000);
+    return `
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.max(pct * 0.56, 3)}px;background:${v>0?'var(--gold-glow)':'rgba(255,255,255,.03)'};border-color:${v>0?'var(--gold-d)':'var(--border)'}"></div>
+      <div class="bar-label">${dayNames[d.getDay()]}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTrafficBreakdown(clicks, signups, inquiries) {
+  const bd = document.getElementById('traffic-breakdown');
+  if (!clicks && !signups && !inquiries) return;
+  const rows = [
+    { label:'Page Visits',  val:clicks,    color:'var(--blue)',  pct:100 },
+    { label:'Signups',      val:signups,   color:'var(--green)', pct:clicks?Math.round(signups/clicks*100):0 },
+    { label:'Inquiries',    val:inquiries, color:'var(--gold)',  pct:clicks?Math.round(inquiries/clicks*100):0 },
+  ];
+  bd.innerHTML = rows.map(r => `
+  <div style="padding:11px 0;border-bottom:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:.85rem;color:var(--off)">${r.label}</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:${r.color}">${r.val}</span>
+    </div>
+    <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:${r.pct}%;background:${r.color};border-radius:2px;transition:width .8s ease"></div>
+    </div>
+  </div>`).join('') + `<div style="font-size:10px;color:var(--gm);padding-top:10px;text-align:right">${clicks?Math.round(signups/clicks*100):0}% click-to-signup rate</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// COPY & SHARE
+// ══════════════════════════════════════════════════════
+function copyLink() {
+  const url = `${CONFIG.SITE_URL}?ref=${PARTNER?.code || 'DEMO'}`;
+  navigator.clipboard?.writeText(url).then(() => {
+    toast('Link copied to clipboard', 'success');
+  }).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = url; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    toast('Link copied', 'success');
+  });
+}
+
+function getShareURL() { return encodeURIComponent(`${CONFIG.SITE_URL}?ref=${PARTNER?.code || 'DEMO'}`); }
+function getShareText() { return encodeURIComponent(`Check out DSCR Daily — the best resource for real estate investors looking for cash-flowing rental properties and DSCR financing strategies.`); }
+
+function shareEmail() {
+  const url = `${CONFIG.SITE_URL}?ref=${PARTNER?.code}`;
+  window.open(`mailto:?subject=DSCR%20Daily%20—%20Investor%20Deals%20%26%20Financing&body=Hey%2C%0A%0AI%20wanted%20to%20share%20this%20resource%20with%20you.%20DSCR%20Daily%20has%20live%20investment%20property%20deals%20with%20cash%20flow%20analysis%20already%20done%2C%20plus%20great%20information%20on%20DSCR%20financing%20strategies.%0A%0ACheck%20it%20out%3A%20${encodeURIComponent(url)}`);
+}
+function shareText() {
+  const url = `${CONFIG.SITE_URL}?ref=${PARTNER?.code}`;
+  window.open(`sms:?body=Check%20out%20DSCR%20Daily%20for%20live%20investment%20deals%20and%20DSCR%20financing%20strategies%3A%20${encodeURIComponent(url)}`);
+}
+function shareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${getShareURL()}`, '_blank'); }
+function shareWhatsApp() { window.open(`https://wa.me/?text=${getShareText()}%20${getShareURL()}`, '_blank'); }
+
+// ══════════════════════════════════════════════════════
+// NOTIFICATION PREFS
+// ══════════════════════════════════════════════════════
+function saveNotifPrefs() {
+  const prefs = {
+    signup:  document.getElementById('notif-signup').checked,
+    inquiry: document.getElementById('notif-inquiry').checked,
+    weekly:  document.getElementById('notif-weekly').checked,
+    email:   document.getElementById('notif-email').value,
+  };
+  // ── REAL: Update Airtable partner record ─────────────────
+  // fetch(`https://api.airtable.com/v0/${CONFIG.AT_BASE}/${CONFIG.AT_PARTNERS}/${PARTNER.id}`, {
+  //   method: 'PATCH',
+  //   headers: { 'Authorization':`Bearer ${CONFIG.AT_KEY}`, 'Content-Type':'application/json' },
+  //   body: JSON.stringify({ fields: { NotifSignup:prefs.signup, NotifInquiry:prefs.inquiry, NotifWeekly:prefs.weekly, NotifEmail:prefs.email } })
+  // });
+  sessionStorage.setItem('dscr_notif_prefs_' + PARTNER?.code, JSON.stringify(prefs));
+  toast('Notification preferences saved', 'success');
+}
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60)   return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+  if (diff < 86400)return Math.floor(diff/3600) + ' hr ago';
+  return Math.floor(diff/86400) + ' days ago';
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function toast(msg, type='info') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  const icon = type==='success' ? '✓' : 'ℹ';
+  el.innerHTML = `<span style="color:${type==='success'?'var(--green)':'var(--gold)'}">${icon}</span> ${msg}`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+// ══════════════════════════════════════════════════════
+// AUTO-LOGIN if session exists
+// ══════════════════════════════════════════════════════
+const savedPartner = sessionStorage.getItem('dscr_partner');
+if (savedPartner) {
+  try {
+    PARTNER = JSON.parse(savedPartner);
+    showDashboard();
+  } catch(e) { sessionStorage.removeItem('dscr_partner'); }
+}
+</script>
+</body>
+</html>
